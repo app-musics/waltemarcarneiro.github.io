@@ -261,4 +261,6 @@ body, html {
 .copyright{
   color: #fff;
   font-size: 14px;
+    font-weight: 400;
+  font-family: 'Manrope', sans-serif;
 }
