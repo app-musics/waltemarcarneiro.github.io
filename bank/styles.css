@@ -89,7 +89,7 @@ body {
     border-bottom: 2px solid #dddddd;
 }
 .action p {
-    font-size: 0.7rem;
+    font-size: 0.9rem;
     font-weight: 500;
 }
 .action .icon {
@@ -173,7 +173,7 @@ body {
     border-radius: 10px;
 }
 .conta strong {
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 400;
 }
 .copyright {
