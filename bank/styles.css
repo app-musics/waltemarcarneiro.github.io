@@ -132,18 +132,18 @@ body {
 }
 .notification-text {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #f76700;
 }
 .notification-subtext {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
 }
 #notification-message {
     margin-top: 10px;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 .close-button {
     margin-top: 10px;
@@ -156,6 +156,7 @@ body {
     width: 100%;
     text-align: center;
     font-size: 1.1rem;
+    font-weight: 600;
 }
 .logo-site {
     width: 100%;
