@@ -202,7 +202,7 @@ body {
     /*image*/
     background-image: url('image/wallpaper.jpg');
     background-size: cover; /* para cobrir todo o elemento */
-    background-position: center; /* para centralizar a imagem */
+    background-position: top center; /* para centralizar a imagem */
     background-repeat: no-repeat; /* para evitar repetição da imagem */
     z-index: 1500;
     display: none;
