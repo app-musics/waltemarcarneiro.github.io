@@ -208,6 +208,15 @@ body {
     z-index: 1500;
     display: none;
 }
+/*overlay desktop*/
+@media only screen and (min-width: 1024px) {
+    .overlay-desktop {
+        background-image: url('image/desktop-wallpaper.jpg'); /* Imagem para desktop */
+        background-size: cover;
+        background-position: top center;
+        background-repeat: no-repeat;
+    }
+}
 .overlay.show {
     display: block;
 }
