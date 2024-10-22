@@ -200,21 +200,19 @@ body {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.8);
-    /*image*/
+    /* Imagem padrão (para dispositivos móveis, por exemplo) */
     background-image: url('image/wallpaper.jpg');
-    background-size: cover; /* para cobrir todo o elemento */
-    background-position: top center; /* para centralizar a imagem */
-    background-repeat: no-repeat; /* para evitar repetição da imagem */
+    background-size: cover;
+    background-position: top center;
+    background-repeat: no-repeat;
     z-index: 1500;
     display: none;
 }
-/*overlay desktop*/
+
+/* Alteração da imagem no desktop */
 @media only screen and (min-width: 1024px) {
-    .overlay-desktop {
+    .overlay {
         background-image: url('image/desktop-wallpaper.jpg'); /* Imagem para desktop */
-        background-size: cover;
-        background-position: top center;
-        background-repeat: no-repeat;
     }
 }
 .overlay.show {
