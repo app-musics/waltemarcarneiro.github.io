@@ -28,8 +28,8 @@
       <meta content='website' property='og:type' />
       <meta property="og:site_name" content="Waltemar Carneiro" />
       <meta name="mobile-web-app-capable" content="yes" />
-   <style>
-      .valor{
+      <style>
+         .valor{
          padding: 10px 20px;
          color: red;
          background: #ffdac9;
@@ -38,19 +38,22 @@
          items-align: center;
          margin: 20px auto 0px;
          width: 70%;
-      }
-      .action p, .dica {
-    font-size: 1.1rem !important;
-    font-weight: 500 !important;
-      }
-      .conta strong {
-    font-size: 1rem !important;
+         }
+         .action p {
+         font-size: 1.1rem !important;
+         font-weight: 500 !important;
+         }
+         .dica{
+         font-size: 1rem !important;
+         }
+         .conta strong {
+         font-size: 1rem !important;
          font-weight: 400 !important;
-      }
-      .action {
+         }
+         .action {
          width: 150px !important;
-      }
-   </style>
+         }
+      </style>
    </head>
    <body>
       <div class="content">
@@ -75,9 +78,9 @@
                <span class="copy-text" style="display:none;">00020101021126580014br.gov.bcb.pix0136ce63f787-4b04-40ee-97ca-b200c2c4c7c95204000053039865406500.005802BR5922WALTEMAR LIMA CARNEIRO6006MANAUS62070503***63047F63</span>
                <div id="qr-message" class="success-message" style="display:none;">
                   <p><b>QRCode®</b> copiado com <b style="color:#1d1d1f">sucesso</b>, use a opção <b style="color:#1d1d1f">Copia e Cola</b> no aplicativo do seu banco!</p>
-                     <div class="valor">
-                        Valor: R$ 500,00
-                     </div>
+                  <div class="valor">
+                     Valor: R$ 500,00
+                  </div>
                   <div class="lista">
                      <ol class="styled-list">
                         <li>No app de seu banco ou carteira digital, vá em Pix.</li>
@@ -182,21 +185,21 @@
          });
          //evento de compartilhamento        
          function sharePage() {
-    if (navigator.share) {
-        navigator.share({
+         if (navigator.share) {
+         navigator.share({
             title: document.title,
             text: 'Prezado Abraão, Conforme meus registros, há um *Débito Pendente* referente a serviços prestados há mais de dois anos, cujo pagamento não foi efetuado. Para que possamos retomar qualquer tipo de relacionamento, seja social ou profissional, é imprescindível que essa pendência seja regularizada imediatamente. Deixo claro que, enquanto o débito permanecer em aberto, será *IMPOSSÍVEL* retomarmos qualquer convivência ou realizar novos negócios. Aguardo o pagamento como minha *Posição Final* a respeito deste assunto. Abaixo disponibilizo um link para a regularização efetiva.',
             url: window.location.href
-        }).then(() => {
+         }).then(() => {
             console.log('Mensagem compartilhada com sucesso!');
-        }).catch((error) => {
+         }).catch((error) => {
             console.error('Erro ao compartilhar a mensagem:', error);
-        });
-    } else {
-        alert('Compartilhamento não suportado neste navegador.');
-    }
-}
-
+         });
+         } else {
+         alert('Compartilhamento não suportado neste navegador.');
+         }
+         }
+         
          
          // Close notification when clicking outside of it
          document.addEventListener('click', function(event) {
