@@ -87,7 +87,6 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-bottom: 2px solid #dddddd;
 }
 .action p {
     font-size: 1rem;
