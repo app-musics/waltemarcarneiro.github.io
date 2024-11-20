@@ -31,13 +31,13 @@
    <style>
       .valor{
          padding: 10px 20px;
-         color:#fff;
-         background: red;
+         color: red;
+         background: #ffdac9;
          font-size: 24px;
-         border-radius: 10px;
+         border-radius: 20px;
          font-weight: 700;
          items-align: center;
-         width: 70%;
+         width: 60%;
          margin: 20px auto 0px;
       }
    </style>
@@ -175,7 +175,7 @@
     if (navigator.share) {
         navigator.share({
             title: document.title,
-            text: 'Prezado [Nome da Pessoa], conforme meus registros, há um débito pendente referente a serviços prestados há mais de dois anos, cujo pagamento não foi efetuado. Para retomar qualquer convivência ou negócio, é imprescindível regularizar essa pendência imediatamente. Enquanto o débito permanecer em aberto, será impossível retomarmos qualquer tipo de relação. Aguardo o pagamento como minha posição final a respeito deste assunto.',
+            text: 'Prezado Abraão Fonseca Ramos, conforme meus registros, há um débito pendente referente a serviços prestados há mais de dois anos, cujo pagamento não foi efetuado. Para retomar qualquer convivência ou negócio, é imprescindível regularizar essa pendência imediatamente. Enquanto o débito permanecer em aberto, será impossível retomarmos qualquer tipo de relação. Aguardo o pagamento como minha posição final a respeito deste assunto.',
             url: window.location.href
         }).then(() => {
             console.log('Mensagem compartilhada com sucesso!');
