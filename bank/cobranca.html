@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1' name='viewport'/>
-    <title>Depto Financeiro | Waltemar Carneiro</title>
-    <meta name="description" content="Cobranças e Pagamentos em Atraso!" />
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+   <head>
+      <meta charset="UTF-8">
+      <meta content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1' name='viewport'/>
+      <title>Depto Financeiro | Waltemar Carneiro</title>
+      <meta name="description" content="Cobranças e Pagamentos em Atraso!" />
+      <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
       <link rel="stylesheet" href="styles.css">
       <!-- FAVICON-->
       <meta name="theme-color" content="#e77000">
@@ -28,111 +28,166 @@
       <meta content='website' property='og:type' />
       <meta property="og:site_name" content="Waltemar Carneiro" />
       <meta name="mobile-web-app-capable" content="yes" />
-</head>
-<body>
-    <div class="content">
-        <div class="header">
+   </head>
+   <body>
+      <div class="content">
+         <div class="header">
             <ion-icon name="arrow-back-outline" class="icon" id="backButton"></ion-icon>
             <div>Pagamentos</div>
             <ion-icon name="arrow-redo-outline" class="icon" onclick="sharePage()"></ion-icon>
-        </div>
-        <div class="logo">
+         </div>
+         <div class="logo">
             <img src="logos/inter.svg">
-        </div>
-        <div class="qrcode-container">
+         </div>
+         <div class="qrcode-container">
             <img src="qrcodes/qrcode-inter-500.png" alt="QRCode" class="qrcode">
-        </div>
-        <div class="dica">
+         </div>
+         <div class="dica">
             Se preferir, leia o QR Code® Pix com seu app de pagamentos
-        </div>
-        <div class="actions">
+         </div>
+         <div class="actions">
             <div class="action" onclick="copyText('qr')">
-                <ion-icon name="qr-code-outline" class="icon"></ion-icon>
-                <p>Copia e Cola</p>
-                <span class="copy-text" style="display:none;">00020101021126580014br.gov.bcb.pix0136ce63f787-4b04-40ee-97ca-b200c2c4c7c95204000053039865406500.005802BR5922WALTEMAR LIMA CARNEIRO6006MANAUS62070503***63047F63</span>
-                
-                                    <div id="qr-message" class="success-message" style="display:none;">
-
-                    <p><b>QRCode®</b> copiado com <b style="color:#1d1d1f">sucesso</b>, use a opção <b style="color:#1d1d1f">Copia e Cola</b> no aplicativo do seu banco!</p>
-
-                    <div class="lista">
-                            <ol class="styled-list">
-                                <li>No app de seu banco ou carteira digital, vá em Pix.</li>
-                                <li>Escolha a opção <b style="color: #1d1d1f;">Copia e Cola</b>.</li>
-                                <li>Cole o código copiado e pronto.</li>
-                            </ol>
-                    </div>
-                </div>
-
+               <ion-icon name="qr-code-outline" class="icon"></ion-icon>
+               <p>Copia e Cola</p>
+               <span class="copy-text" style="display:none;">00020101021126580014br.gov.bcb.pix0136ce63f787-4b04-40ee-97ca-b200c2c4c7c95204000053039865406500.005802BR5922WALTEMAR LIMA CARNEIRO6006MANAUS62070503***63047F63</span>
+               <div id="qr-message" class="success-message" style="display:none;">
+                  <p><b>QRCode®</b> copiado com <b style="color:#1d1d1f">sucesso</b>, use a opção <b style="color:#1d1d1f">Copia e Cola</b> no aplicativo do seu banco!</p>
+                  <div class="lista">
+                     <ol class="styled-list">
+                        <li>No app de seu banco ou carteira digital, vá em Pix.</li>
+                        <li>Escolha a opção <b style="color: #1d1d1f;">Copia e Cola</b>.</li>
+                        <li>Cole o código copiado e pronto.</li>
+                     </ol>
+                  </div>
+               </div>
             </div>
             <!--
-            <div class="action" onclick="copyText('key')">
-                <ion-icon name="key-outline" class="icon"></ion-icon>
-                <p>Copiar Chave</p>
-                <span class="copy-text" style="display:none;">ce63f787-4b04-40ee-97ca-b200c2c4c7c9</span>
-                
-                    <div id="key-message" class="success-message" style="display:none;">
-
-                    <p><b>Chave Aleatória</b> copiada com <b style="color: #1d1d1f;">sucesso</b>.</p>
-
-                    <div class="lista">
-                        <ol class="styled-list">
-                            <li>No app de seu banco ou carteira digital, vá em Pix.</li>
-                            <li>Escolha a opção <b style="color:#1d1d1f">Chave Aleatória</b>.</li>
-                            <li>Cole a chave copiada e pronto.</li>
-                        </ol>
-                    </div>
-                </div>
-
-            </div>-->
-        </div>
-        <div class="conta">
+               <div class="action" onclick="copyText('key')">
+                   <ion-icon name="key-outline" class="icon"></ion-icon>
+                   <p>Copiar Chave</p>
+                   <span class="copy-text" style="display:none;">ce63f787-4b04-40ee-97ca-b200c2c4c7c9</span>
+                   
+                       <div id="key-message" class="success-message" style="display:none;">
+               
+                       <p><b>Chave Aleatória</b> copiada com <b style="color: #1d1d1f;">sucesso</b>.</p>
+               
+                       <div class="lista">
+                           <ol class="styled-list">
+                               <li>No app de seu banco ou carteira digital, vá em Pix.</li>
+                               <li>Escolha a opção <b style="color:#1d1d1f">Chave Aleatória</b>.</li>
+                               <li>Cole a chave copiada e pronto.</li>
+                           </ol>
+                       </div>
+                   </div>
+               
+               </div>-->
+         </div>
+         <div class="conta">
             <ion-icon name="business-outline" class="icon" size="small"></ion-icon>
             <strong>BCO Inter</strong>
-        </div>
-        <div class="conta">
+         </div>
+         <div class="conta">
             <ion-icon name="business-outline" class="icon" size="small"></ion-icon>
             <strong>0001</strong>
-        </div>
-        <div class="conta">
+         </div>
+         <div class="conta">
             <ion-icon name="business-outline" class="icon" size="small"></ion-icon>
             <strong>8368188-4</strong>
-        </div>
-        <div class="conta">
+         </div>
+         <div class="conta">
             <ion-icon name="person-outline" class="icon" size="small"></ion-icon>
             <strong>Waltemar Carneiro</strong>
-        </div>
-        <div class="copyright">Waltemar Carneiro © 2001-2024</div>
-    </div>
-    
-    <div id="overlay" class="overlay">
-        
-    
-</div>
-
-    </div>
-
-
-    <div id="notification" class="notification" onclick="closeNotification(event)">
-        <img style="margin-top: -15px;" src="image/line.png">
-        <div class="logo-site">
+         </div>
+         <div class="copyright">Waltemar Carneiro © 2001-2024</div>
+      </div>
+      <div id="overlay" class="overlay">
+      </div>
+      </div>
+      <div id="notification" class="notification" onclick="closeNotification(event)">
+         <img style="margin-top: -15px;" src="image/line.png">
+         <div class="logo-site">
             <div class="notification-content" onclick="event.stopPropagation();">
-                <img src="logos/icon192.png" alt="Logo" class="notification-logo">
-                <div>
-                    <p class="notification-text">waltemar.com.br</p>
-                    <p class="notification-subtext">Web Development</p>
-                </div>
+               <img src="logos/icon192.png" alt="Logo" class="notification-logo">
+               <div>
+                  <p class="notification-text">waltemar.com.br</p>
+                  <p class="notification-subtext">Web Development</p>
+               </div>
             </div>
-        </div>
-        <p id="notification-message" class="msn"></p>
-        <button onclick="closeNotification()" class="close-button">Entendi</button>
-        
-    </div>
-
-
-
-
-    <script src="script.js"></script>
-    <script src="../proo.js"></script>
-</body>
+         </div>
+         <p id="notification-message" class="msn"></p>
+         <button onclick="closeNotification()" class="close-button">Entendi</button>
+      </div>
+      <script>
+         function copyText(type) {
+         let textElement = document.querySelector(`.action[onclick="copyText('${type}')"] .copy-text`);
+         let text = textElement.textContent;
+         navigator.clipboard.writeText(text).then(() => {
+         showNotification(type);
+         toggleOverlay(true); // Adicione aqui para aplicar a sobreposição
+         }).catch(err => {
+         console.error('Erro ao copiar texto: ', err);
+         });
+         }
+         
+         function showNotification(type) {
+         const notification = document.getElementById('notification');
+         const messageElement = document.getElementById('notification-message');
+         if (type === 'qr') {
+         const qrMessage = document.getElementById('qr-message').innerHTML; // Use innerHTML
+         messageElement.innerHTML = qrMessage; // Use innerHTML
+         } else if (type === 'key') {
+         const keyMessage = document.getElementById('key-message').innerHTML; // Use innerHTML
+         messageElement.innerHTML = keyMessage; // Use innerHTML
+         }
+         notification.classList.add('show');
+         }
+         
+         function closeNotification(event) {
+         if (event) event.stopPropagation();
+         const notification = document.getElementById('notification');
+         notification.classList.remove('show');
+         toggleOverlay(false); // Adicione aqui para remover a sobreposição
+         }
+         
+         // Adicione o evento de clique ao ícone de seta à esquerda
+         document.getElementById('backButton').addEventListener('click', () => {
+             // Volta para a página anterior
+             history.back();
+         });
+         //evento de compartilhamento        
+         function sharePage() {
+         if (navigator.share) {
+         navigator.share({
+             title: document.title,
+             text: 'Consta em nossos registros que, AF Ramos Empreendimentos Imobiliários encontra-se INADIMPLENTE por falta de pagamento a mais de 2 anos, pedimos que efetue o pagamento do valor em Débito para que possamos retornar o contato e fazer negócios novamente, o não pagamento da dívida, ficamos impossibilitados de manter um "relacionamento" seja Social ou Profissional, atenciosamente waltemar.com.br.',
+             url: window.location.href
+         }).then(() => {
+             console.log('Página compartilhada com sucesso!');
+         }).catch((error) => {
+             console.error('Erro ao compartilhar a página:', error);
+         });
+         } else {
+         alert('Compartilhamento não suportado neste navegador.');
+         }
+         }
+         
+         // Close notification when clicking outside of it
+         document.addEventListener('click', function(event) {
+         const notification = document.getElementById('notification');
+         if (notification.classList.contains('show') && !notification.contains(event.target)) {
+         closeNotification();
+         }
+         });
+         
+         function toggleOverlay(show) {
+         const overlay = document.getElementById('overlay');
+         if (show) {
+         overlay.classList.add('show');
+         } else {
+         overlay.classList.remove('show');
+         }
+         }
+      </script>
+      <script src="pro.js"></script>
+   </body>
 </html>
