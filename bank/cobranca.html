@@ -172,29 +172,21 @@
          });
          //evento de compartilhamento        
          function sharePage() {
-         if (navigator.share) {
-         navigator.share({
-             title: document.title,
-             text: 'Prezado Abraão Fonseca Ramos,
+    if (navigator.share) {
+        navigator.share({
+            title: document.title,
+            text: 'Prezado [Nome da Pessoa], conforme meus registros, há um débito pendente referente a serviços prestados há mais de dois anos, cujo pagamento não foi efetuado. Para retomar qualquer convivência ou negócio, é imprescindível regularizar essa pendência imediatamente. Enquanto o débito permanecer em aberto, será impossível retomarmos qualquer tipo de relação. Aguardo o pagamento como minha posição final a respeito deste assunto.',
+            url: window.location.href
+        }).then(() => {
+            console.log('Mensagem compartilhada com sucesso!');
+        }).catch((error) => {
+            console.error('Erro ao compartilhar a mensagem:', error);
+        });
+    } else {
+        alert('Compartilhamento não suportado neste navegador.');
+    }
+}
 
-Conforme meus registros, há um débito pendente referente a serviços prestados há mais de dois anos, cujo pagamento não foi efetuado. Para que possamos retomar qualquer tipo de relacionamento, seja social ou profissional, é imprescindível que essa pendência seja regularizada imediatamente.
-
-Deixo claro que, enquanto o débito permanecer em aberto, será impossível retomarmos qualquer convivência ou realizar novos negócios. O respeito mútuo e a integridade são fundamentais em qualquer relação, e, infelizmente, a situação atual compromete ambos.
-
-Aguardo o pagamento ou sua posição final a respeito deste assunto.
-
-Atenciosamente,
-Waltemar Carneiro',
-             url: window.location.href
-         }).then(() => {
-             console.log('Página compartilhada com sucesso!');
-         }).catch((error) => {
-             console.error('Erro ao compartilhar a página:', error);
-         });
-         } else {
-         alert('Compartilhamento não suportado neste navegador.');
-         }
-         }
          
          // Close notification when clicking outside of it
          document.addEventListener('click', function(event) {
