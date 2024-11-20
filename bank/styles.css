@@ -45,7 +45,7 @@ body {
 .header .icon {
     font-size: 24px;
     cursor: pointer;
-    color: #F76700;
+    color: #e77000;
 }
 .logo {
     display: flex;
@@ -65,10 +65,11 @@ body {
     height: 120px;
 }
 .dica {
-    font-size: 0.8rem;
+    font-size: 1rem;
     text-align: center;
     margin-bottom: 20px;
     text-shadow: 0px 1px 1px #fff;
+    font-weight: 600;
 }
 .actions {
     display: flex;
@@ -80,24 +81,25 @@ body {
     text-align: center;
     cursor: pointer;
     padding: 10px;
-    background: #fff;
+    background: #e77000;
     border-radius: 10px;
     height: 80px;
-    width: 90px;
+    width: 110px;
     display: flex;
-    flex-direction: column; 
-    justify-content: center; 
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
     border-bottom: 2px solid #dddddd;
 }
 .action p {
-    font-size: 0.7rem;
+    font-size: 1rem;
     font-weight: 500;
+    color: #fff;
 }
 .action .icon {
     font-size: 30px;
     margin-bottom: 5px;
-    color: #F76700;
+    color: #fff;
 }
 .notification {
     display: none;
@@ -175,7 +177,7 @@ body {
     border-radius: 10px;
 }
 .conta strong {
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 500;
 }
 .copyright {
