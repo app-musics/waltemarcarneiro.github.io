@@ -11,11 +11,11 @@ body {
     -webkit-tap-highlight-color: transparent;
     font-family: 'Manrope', sans-serif;
     font-weight: 400;
-    background-color: #f0f4f9;
+    background-color: #F5F6FA;
     margin: 0;
     display: flex;
     justify-content: center;
-    color: #52525b;
+    color: #151515;
     font-size: 16px;
 }
 .content {
