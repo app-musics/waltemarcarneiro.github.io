@@ -80,11 +80,9 @@ body {
 .action {
     text-align: center;
     cursor: pointer;
-    padding: 10px;
+    padding: 15px 10px;
     background: #e77000;
     border-radius: 10px;
-    height: 80px;
-    width: 110px;
     display: flex;
     flex-direction: column;
     justify-content: center;
