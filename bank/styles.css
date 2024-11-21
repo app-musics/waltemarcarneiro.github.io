@@ -50,7 +50,7 @@ body {
 .logo {
     display: flex;
     margin-top: 50px;
-    height: 30px;
+    height: 20px;
 }
 .qrcode-container {
     text-align: center;
