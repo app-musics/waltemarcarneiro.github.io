@@ -81,7 +81,7 @@ body {
 .action {
     text-align: center;
     cursor: pointer;
-    padding: 30px 15px;
+    padding: 10px;
     background: #fff;
     border-radius: 10px;
     display: flex;
