@@ -80,23 +80,24 @@ body {
 .action {
     text-align: center;
     cursor: pointer;
-    padding: 15px 10px;
-    background: #e77000;
+    padding: 30px 15px;
+    background: #fff;
     border-radius: 10px;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: column; 
+    justify-content: center; 
     align-items: center;
+    box-shadow: 0px 0px 25px -5px rgba(0,0,0,0.2);
 }
 .action p {
     font-size: 1rem;
     font-weight: 500;
-    color: #fff;
+    color: #e77000;
 }
 .action .icon {
     font-size: 30px;
     margin-bottom: 5px;
-    color: #fff;
+    color: #e77000;
 }
 .notification {
     display: none;
