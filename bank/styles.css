@@ -175,10 +175,11 @@ body {
     background: #FFFFFF;
     margin-bottom: 1px;
     border-radius: 10px;
+    font-family: 'Roboto Mono', sans-serif;
 }
 .conta strong {
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 400;
 }
 .copyright {
    
