@@ -175,7 +175,8 @@ body {
     background: #FFFFFF;
     margin-bottom: 1px;
     border-radius: 10px;
-    font-family: 'Roboto Mono', sans-serif;
+    font-family: 'Roboto Condensed', sans-serif;
+    text-transform: uppercase;
 }
 .conta strong {
     font-size: 0.875rem;
