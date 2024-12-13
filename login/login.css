@@ -171,7 +171,7 @@ justify-content: space-between;
 .store-icons2 a {
 display: flex;
 align-items: center;
-text-decoration: underline;
+text-decoration: none;
 color: #fff;
 border-radius: 20px;
 font-size: 0.8rem;
