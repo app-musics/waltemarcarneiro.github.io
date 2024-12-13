@@ -4,8 +4,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @font-face {
-    font-family: 'Segoe UI';
-    src: local('Segoe UI'), url('https://learn.microsoft.com/en-us/typography/font-list/segoe-ui') format('woff2');
+    font-family: 'Segoe UI Light';
+    src: local('Segoe UI Light'),
+         local('Segoe UI'),
+         url('https://learn.microsoft.com/en-us/typography/font-list/segoe-ui') format('woff2');
 }
 
 *{
@@ -121,9 +123,8 @@ user-select: none;
 }
 .center-text h1{
 font-size: 2.8rem;
-font-weight: 300;
 /*font-family: 'Quicksand', sans-serif;*/
-font-family: 'Segoe UI', sans-serif;
+font-family: 'Segoe UI Light', sans-serif;
 text-shadow: 2px 2px #3d1319;
 }
 h1 {
