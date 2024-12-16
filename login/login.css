@@ -11,7 +11,7 @@
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: #726232;
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('../image/bg.jpg') no-repeat center center fixed;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('https://waltemar.com.br/image/bg.jpg') no-repeat center center fixed;
     background-size: cover;
     color: #fff;
     display: flex;
@@ -26,7 +26,7 @@ body {
 
 @media screen and (orientation: portrait) {
     body {
-        background: linear-gradient(134deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('../image/bg.jpg') no-repeat center center fixed;
+        background: linear-gradient(134deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('https://waltemar.com.br/image/bg.jpg') no-repeat center center fixed;
         background-size: cover;
     }
 }
@@ -76,7 +76,6 @@ input[type="email"],
 input[type="password"] {
     background-color: transparent; /* Fundo transparente */
     color: #fff; /* Texto branco */
-    padding: 5px;
     border-radius: 5px;
     width: 100%;
     outline: none;
@@ -97,8 +96,8 @@ input[type="password"]:-webkit-autofill {
     align-items: center;
     margin-bottom: 5px;
     border-bottom: 1px solid #888;
-    padding-bottom: 10px;
     padding-top: 10px;
+    padding-bottom: 5px;
     width: 100%;
 }
 
