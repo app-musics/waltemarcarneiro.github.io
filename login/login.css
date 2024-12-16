@@ -85,10 +85,11 @@ input[type="password"] {
 input[type="text"]:-webkit-autofill,
 input[type="email"]:-webkit-autofill,
 input[type="password"]:-webkit-autofill {
-    background-color: transparent !important;
-    color: #fff !important;
+    background-color: transparent !important; /* Remove o fundo branco */
+    color: #fff !important; /* Força o texto branco */
     -webkit-box-shadow: 0 0 0 1000px transparent inset !important; /* Garante a transparência */
     transition: background-color 5000s ease-in-out 0s; /* Remove a animação de preenchimento automático */
+    -webkit-text-fill-color: #fff !important; /* Força o preenchimento do texto para branco */
 }
 
 .input-container {
