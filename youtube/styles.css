@@ -114,6 +114,7 @@
     overflow: hidden;
     transition: all 0.3s ease;
     cursor: pointer;
+    flex-direction: column;
   }
   
   .song-item:hover {
