@@ -107,6 +107,7 @@
     /*background: var(--glass-effect);*/
     backdrop-filter: blur(10px);
     border-radius: 15px;
+    padding-bottom: 150px;
   }
   
   .song-item {
