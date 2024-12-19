@@ -55,9 +55,13 @@ searchInput.addEventListener('input', (e) => {
 suggestedPlaylists.addEventListener('click', (e) => {
     if (e.target.tagName === 'LI') {
         const playlistId = e.target.dataset.playlistId;
-        // Aqui você pode usar a mesma lógica que usa para carregar playlists
-        // do input de URL, mas usando o playlistId diretamente
-        loadPlaylist(playlistId);
+        // Verificar se a playlist já existe no array
+        const existingPlaylist = playlists.find(p => p.id === playlistId);
+        if (existingPlaylist) {
+            loadPlaylist(existingPlaylist);
+        } else {
+            fetchPlaylistData(playlistId);
+        }
         sideMenu.classList.remove('active');
     }
 });
@@ -143,6 +147,8 @@ async function fetchPlaylistData(playlistId) {
         };
 
         playlists.push(playlist);
+        // Salvar no LocalStorage
+        localStorage.setItem('playlists', JSON.stringify(playlists));
         updatePlaylistDisplay();
         loadPlaylist(playlist);
         
@@ -167,7 +173,21 @@ function updatePlaylistDisplay() {
 }
 
 // Função para carregar playlist
-function loadPlaylist(playlist) {
+function loadPlaylist(playlistIdOrObject) {
+    let playlist;
+    if (typeof playlistIdOrObject === 'string') {
+        // Se for um ID, procurar a playlist correspondente
+        playlist = playlists.find(p => p.id === playlistIdOrObject);
+        if (!playlist) {
+            // Se não encontrar nas playlists salvas, carregar da API
+            fetchPlaylistData(playlistIdOrObject);
+            return;
+        }
+    } else {
+        // Se for um objeto, usar diretamente
+        playlist = playlistIdOrObject;
+    }
+
     currentPlaylist = playlist;
     currentSongIndex = 0;
     displaySongs();
@@ -243,4 +263,13 @@ function updatePlayButton() {
     const playBtn = document.getElementById('play-btn');
     playBtn.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 }
+
+// Carregar playlists do LocalStorage quando a página carregar
+document.addEventListener('DOMContentLoaded', () => {
+    const savedPlaylists = localStorage.getItem('playlists');
+    if (savedPlaylists) {
+        playlists = JSON.parse(savedPlaylists);
+        updatePlaylistDisplay();
+    }
+});
   
