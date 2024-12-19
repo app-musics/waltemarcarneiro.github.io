@@ -4,6 +4,36 @@ const API_KEY = 'AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY';
 let currentPlaylist = [];
 let currentSongIndex = -1;
 let isPlaying = false;
+let youtubePlayer;
+
+//
+function loadYouTubePlayer() {
+    if (!youtubePlayer) {
+        youtubePlayer = new YT.Player('youtube-player', {
+            height: '360',
+            width: '640',
+            videoId: currentPlaylist[0]?.videoId || '',
+            events: {
+                onStateChange: onPlayerStateChange,
+            },
+        });
+    }
+}
+//
+function playSong(index) {
+    currentSongIndex = index;
+    const song = currentPlaylist[index];
+    
+    document.getElementById('current-thumbnail').src = song.thumbnail;
+    document.getElementById('current-song').textContent = song.title;
+    document.getElementById('current-artist').textContent = song.artist;
+
+    youtubePlayer.loadVideoById(song.videoId);
+    youtubePlayer.playVideo();
+
+    isPlaying = true;
+    updatePlayButton();
+}
 
 // Função para adicionar uma nova playlist
 async function addPlaylist() {
@@ -140,4 +170,43 @@ function updatePlaylistList() {
 }
 
 // Carregar playlists salvas ao iniciar
-updatePlaylistList(); 
+updatePlaylistList();
+
+// ----
+
+async function fetchPlaylistData(playlistId) {
+    const endpoint = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${API_KEY}`;
+    const response = await fetch(endpoint);
+    
+    if (!response.ok) {
+        throw new Error('Falha ao buscar dados da playlist');
+    }
+    
+    const data = await response.json();
+    return data.items.map(item => ({
+        title: item.snippet.title,
+        thumbnail: item.snippet.thumbnails.default.url,
+        videoId: item.snippet.resourceId.videoId,
+        artist: item.snippet.channelTitle,
+    }));
+}
+//--
+try {
+    const playlistData = await fetchPlaylistData(playlistId);
+    currentPlaylist = playlistData;
+    displaySongs();
+    
+    alert('Playlist adicionada com sucesso!');
+} catch (error) {
+    console.error('Erro ao buscar a playlist:', error);
+    alert('Erro ao adicionar a playlist.');
+}
+//--
+function togglePlay() {
+    if (!currentPlaylist.length) {
+        alert('Carregue uma playlist primeiro!');
+        return;
+    }
+    isPlaying = !isPlaying;
+    updatePlayButton();
+}
