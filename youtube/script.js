@@ -104,7 +104,7 @@ function updatePlaylistDisplay() {
     const playlistList = document.getElementById('playlist-list');
     playlistList.innerHTML = playlists.map(playlist => `
         <div class="playlist-item" onclick="loadPlaylist('${playlist.id}')">
-            ${playlist.name}
+            <i class="fas fa-music"></i> ${playlist.name}
         </div>
     `).join('');
 }
@@ -123,7 +123,7 @@ function displaySongs() {
 
     const songsContainer = document.getElementById('songs-container');
     songsContainer.innerHTML = currentPlaylist.songs.map((song, index) => `
-        <div class="song-item" onclick="loadSong(${index})">
+        <div class="song-item ${currentSongIndex === index ? 'active' : ''}" onclick="loadSong(${index})">
             <img src="${song.thumbnail}" alt="${song.title}">
             <div class="song-info">
                 <div class="song-title">${song.title}</div>
