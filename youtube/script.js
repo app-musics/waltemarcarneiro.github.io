@@ -1,212 +1,189 @@
-// Chave da API do YouTube (você precisará criar uma no Google Cloud Console)
-const API_KEY = 'AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY';
-
-let currentPlaylist = [];
-let currentSongIndex = -1;
+// Variáveis globais
+let playlists = [];
+let currentPlaylist = null;
+let currentSongIndex = 0;
 let isPlaying = false;
-let youtubePlayer;
+let player = null;
 
-//
-function loadYouTubePlayer() {
-    if (!youtubePlayer) {
-        youtubePlayer = new YT.Player('youtube-player', {
-            height: '360',
-            width: '640',
-            videoId: currentPlaylist[0]?.videoId || '',
-            events: {
-                onStateChange: onPlayerStateChange,
-            },
-        });
-    }
-}
-//
-function playSong(index) {
-    currentSongIndex = index;
-    const song = currentPlaylist[index];
-    
-    document.getElementById('current-thumbnail').src = song.thumbnail;
-    document.getElementById('current-song').textContent = song.title;
-    document.getElementById('current-artist').textContent = song.artist;
-
-    youtubePlayer.loadVideoById(song.videoId);
-    youtubePlayer.playVideo();
-
-    isPlaying = true;
-    updatePlayButton();
+// Adicione esta função que será chamada automaticamente quando a API do YouTube carregar
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('youtube-player', {
+        height: '0',
+        width: '0',
+        playerVars: {
+            'playsinline': 1,
+            'controls': 0
+        },
+        events: {
+            'onStateChange': onPlayerStateChange
+        }
+    });
 }
 
-// Função para adicionar uma nova playlist
-async function addPlaylist() {
-    const playlistUrlInput = document.getElementById('playlist-url');
-    const url = playlistUrlInput.value.trim();
-    
-    if (!url) {
-        alert('Por favor, insira uma URL válida');
-        return;
+// Adicione esta função para lidar com mudanças de estado do player
+function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.ENDED) {
+        playNext();
     }
+}
 
-    const playlistId = extractPlaylistId(url);
-    
+// Função para adicionar playlist
+function addPlaylist() {
+    const playlistUrl = document.getElementById('playlist-url').value;
+    if (!playlistUrl) return;
+
+    // Extrair o ID da playlist do URL do YouTube
+    const playlistId = extractPlaylistId(playlistUrl);
     if (!playlistId) {
-        alert('URL da playlist inválida. Certifique-se de que é uma URL válida do YouTube');
+        alert('URL da playlist inválida');
         return;
     }
 
-    try {
-        // Aqui você precisará implementar a lógica para buscar os dados da playlist
-        // Por enquanto, vamos apenas adicionar a playlist à lista
-        const playlistList = document.getElementById('playlist-list');
-        const playlistElement = document.createElement('div');
-        playlistElement.className = 'playlist-item';
-        playlistElement.innerHTML = `
-            <i class="fas fa-music"></i>
-            <span>Playlist ${playlistList.children.length + 1}</span>
-        `;
-        
-        playlistList.appendChild(playlistElement);
-        
-        // Limpar o campo de input
-        playlistUrlInput.value = '';
-        
-        // Feedback visual para o usuário
-        alert('Playlist adicionada com sucesso!');
-    } catch (error) {
-        console.error('Erro ao adicionar playlist:', error);
-        alert('Ocorreu um erro ao adicionar a playlist');
-    }
+    // Fazer requisição para a API do YouTube (você precisará de uma chave de API)
+    fetchPlaylistData(playlistId);
 }
 
-// Função para extrair o ID da playlist de uma URL do YouTube
+// Função para extrair ID da playlist
 function extractPlaylistId(url) {
-    const regex = /[&?]list=([a-zA-Z0-9_-]+)/;
+    const regex = /[?&]list=([^#\&\?]+)/;
     const match = url.match(regex);
     return match ? match[1] : null;
 }
 
-// Função para exibir as músicas
-function displaySongs() {
-    const container = document.getElementById('songs-container');
-    container.innerHTML = '';
+// Função para buscar dados da playlist
+async function fetchPlaylistData(playlistId) {
+    const API_KEY = 'AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY'; // Você precisa substituir por uma chave API válida
+    const apiUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${API_KEY}`;
 
-    currentPlaylist.forEach((song, index) => {
-        const songCard = document.createElement('div');
-        songCard.className = 'song-card';
-        songCard.innerHTML = `
-            <img src="${song.thumbnail}" alt="${song.title}">
-            <h3>${song.title}</h3>
-            <p>${song.artist}</p>
-        `;
-        songCard.onclick = () => playSong(index);
-        container.appendChild(songCard);
-    });
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error('Erro na resposta da API');
+        }
+        
+        const data = await response.json();
+        
+        if (!data.items || data.items.length === 0) {
+            throw new Error('Playlist vazia ou não encontrada');
+        }
+
+        // Buscar informações adicionais da playlist
+        const playlistInfoUrl = `https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${playlistId}&key=${API_KEY}`;
+        const playlistResponse = await fetch(playlistInfoUrl);
+        const playlistData = await playlistResponse.json();
+        
+        const playlistTitle = playlistData.items?.[0]?.snippet?.title || 'Nova Playlist';
+
+        const playlist = {
+            id: playlistId,
+            name: playlistTitle,
+            songs: data.items.map(item => ({
+                id: item.snippet.resourceId.videoId,
+                title: item.snippet.title,
+                thumbnail: item.snippet.thumbnails.default.url,
+                artist: item.snippet.videoOwnerChannelTitle || 'Artista Desconhecido'
+            }))
+        };
+
+        playlists.push(playlist);
+        updatePlaylistDisplay();
+        loadPlaylist(playlist);
+        
+        // Feedback visual para o usuário
+        document.getElementById('playlist-url').value = '';
+        alert('Playlist carregada com sucesso!');
+        
+    } catch (error) {
+        console.error('Erro ao carregar playlist:', error);
+        alert('Erro ao carregar playlist: ' + error.message);
+    }
 }
 
-// Função para tocar uma música
-function playSong(index) {
+// Função para atualizar display das playlists
+function updatePlaylistDisplay() {
+    const playlistList = document.getElementById('playlist-list');
+    playlistList.innerHTML = playlists.map(playlist => `
+        <div class="playlist-item" onclick="loadPlaylist('${playlist.id}')">
+            ${playlist.name}
+        </div>
+    `).join('');
+}
+
+// Função para carregar playlist
+function loadPlaylist(playlist) {
+    currentPlaylist = playlist;
+    currentSongIndex = 0;
+    displaySongs();
+    loadSong(currentSongIndex);
+}
+
+// Função para exibir músicas
+function displaySongs() {
+    if (!currentPlaylist) return;
+
+    const songsContainer = document.getElementById('songs-container');
+    songsContainer.innerHTML = currentPlaylist.songs.map((song, index) => `
+        <div class="song-item" onclick="loadSong(${index})">
+            <img src="${song.thumbnail}" alt="${song.title}">
+            <div class="song-info">
+                <div class="song-title">${song.title}</div>
+                <div class="song-artist">${song.artist}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Função para carregar música
+function loadSong(index) {
+    if (!currentPlaylist || !currentPlaylist.songs[index]) return;
+
     currentSongIndex = index;
-    const song = currentPlaylist[index];
+    const song = currentPlaylist.songs[index];
     
     document.getElementById('current-thumbnail').src = song.thumbnail;
     document.getElementById('current-song').textContent = song.title;
     document.getElementById('current-artist').textContent = song.artist;
-    
-    // Aqui você pode implementar a integração com o YouTube Embedded Player
-    // ou usar a API do YouTube para tocar o vídeo
-    
-    isPlaying = true;
-    updatePlayButton();
-}
 
-// Funções de controle do player
-function togglePlay() {
-    if (currentSongIndex === -1) return;
-    
-    isPlaying = !isPlaying;
-    updatePlayButton();
-}
-
-function playNext() {
-    if (currentSongIndex < currentPlaylist.length - 1) {
-        playSong(currentSongIndex + 1);
+    // Carrega e reproduz o vídeo usando o player do YouTube
+    if (player && player.loadVideoById) {
+        player.loadVideoById(song.id);
+        isPlaying = true;
+        updatePlayButton();
     }
+}
+
+// Controles do player
+document.getElementById('play-btn').addEventListener('click', togglePlay);
+document.getElementById('prev-btn').addEventListener('click', playPrevious);
+document.getElementById('next-btn').addEventListener('click', playNext);
+
+function togglePlay() {
+    if (!player) return;
+
+    isPlaying = !isPlaying;
+    if (isPlaying) {
+        player.playVideo();
+    } else {
+        player.pauseVideo();
+    }
+    updatePlayButton();
 }
 
 function playPrevious() {
     if (currentSongIndex > 0) {
-        playSong(currentSongIndex - 1);
+        loadSong(currentSongIndex - 1);
     }
 }
 
+function playNext() {
+    if (currentPlaylist && currentSongIndex < currentPlaylist.songs.length - 1) {
+        loadSong(currentSongIndex + 1);
+    }
+}
+
+// Adicione esta função auxiliar
 function updatePlayButton() {
     const playBtn = document.getElementById('play-btn');
-    playBtn.innerHTML = isPlaying ? 
-        '<i class="fas fa-pause"></i>' : 
-        '<i class="fas fa-play"></i>';
+    playBtn.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 }
-
-// Event Listeners
-document.getElementById('play-btn').onclick = togglePlay;
-document.getElementById('next-btn').onclick = playNext;
-document.getElementById('prev-btn').onclick = playPrevious;
-
-// Função para salvar playlist no localStorage
-function savePlaylist(playlistId) {
-    const savedPlaylists = JSON.parse(localStorage.getItem('playlists') || '[]');
-    if (!savedPlaylists.includes(playlistId)) {
-        savedPlaylists.push(playlistId);
-        localStorage.setItem('playlists', JSON.stringify(savedPlaylists));
-        updatePlaylistList();
-    }
-}
-
-// Função para atualizar a lista de playlists
-function updatePlaylistList() {
-    const playlistList = document.getElementById('playlist-list');
-    const savedPlaylists = JSON.parse(localStorage.getItem('playlists') || '[]');
-    
-    playlistList.innerHTML = savedPlaylists.map(id => 
-        `<div class="playlist-item" onclick="loadPlaylist('${id}')">${id}</div>`
-    ).join('');
-}
-
-// Carregar playlists salvas ao iniciar
-updatePlaylistList();
-
-// ----
-
-async function fetchPlaylistData(playlistId) {
-    const endpoint = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${API_KEY}`;
-    const response = await fetch(endpoint);
-    
-    if (!response.ok) {
-        throw new Error('Falha ao buscar dados da playlist');
-    }
-    
-    const data = await response.json();
-    return data.items.map(item => ({
-        title: item.snippet.title,
-        thumbnail: item.snippet.thumbnails.default.url,
-        videoId: item.snippet.resourceId.videoId,
-        artist: item.snippet.channelTitle,
-    }));
-}
-//--
-try {
-    const playlistData = await fetchPlaylistData(playlistId);
-    currentPlaylist = playlistData;
-    displaySongs();
-    
-    alert('Playlist adicionada com sucesso!');
-} catch (error) {
-    console.error('Erro ao buscar a playlist:', error);
-    alert('Erro ao adicionar a playlist.');
-}
-//--
-function togglePlay() {
-    if (!currentPlaylist.length) {
-        alert('Carregue uma playlist primeiro!');
-        return;
-    }
-    isPlaying = !isPlaying;
-    updatePlayButton();
-}
+  
