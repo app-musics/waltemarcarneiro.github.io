@@ -9,6 +9,47 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <header class="main-header">
+        <div class="header-left">
+            <button id="menu-btn" class="menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div class="header-center">
+            <h1>MusicPlayer</h1>
+        </div>
+        
+        <div class="header-right">
+            <button id="search-btn" class="search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </header>
+
+    <div id="side-menu" class="side-menu">
+        <div class="menu-header">
+            <h2>Playlists Sugeridas</h2>
+            <button id="close-menu" class="close-menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul id="suggested-playlists">
+            <li data-playlist-id="PLX_YaKXOr1s4G31MK1LOv-w3VjDwo6Bky">Dance</li>
+            <li data-playlist-id="PLX_YaKXOr1s6u6O3srDxVJn720Zi2RRC5">Love Songs</li>
+            
+        </ul>
+    </div>
+
+    <div id="search-overlay" class="search-overlay">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Buscar música...">
+            <button id="close-search" class="close-search">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="playlist-input">
             <input type="text" id="playlist-url" placeholder="Cole o URL da playlist do YouTube">

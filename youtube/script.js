@@ -5,6 +5,63 @@ let currentSongIndex = 0;
 let isPlaying = false;
 let player = null;
 
+// Elementos do DOM
+const menuBtn = document.getElementById('menu-btn');
+const sideMenu = document.getElementById('side-menu');
+const closeMenu = document.getElementById('close-menu');
+const searchBtn = document.getElementById('search-btn');
+const searchOverlay = document.getElementById('search-overlay');
+const closeSearch = document.getElementById('close-search');
+const searchInput = document.getElementById('search-input');
+const suggestedPlaylists = document.getElementById('suggested-playlists');
+
+// Controle do menu
+menuBtn.addEventListener('click', () => {
+    sideMenu.classList.add('active');
+});
+
+closeMenu.addEventListener('click', () => {
+    sideMenu.classList.remove('active');
+});
+
+// Controle da busca
+searchBtn.addEventListener('click', () => {
+    searchOverlay.classList.add('active');
+    searchInput.focus();
+});
+
+closeSearch.addEventListener('click', () => {
+    searchOverlay.classList.remove('active');
+});
+
+// Função de busca
+searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const songs = document.querySelectorAll('.song-item');
+    
+    songs.forEach(song => {
+        const title = song.querySelector('.song-title').textContent.toLowerCase();
+        const artist = song.querySelector('.song-artist').textContent.toLowerCase();
+        
+        if (title.includes(searchTerm) || artist.includes(searchTerm)) {
+            song.style.display = 'flex';
+        } else {
+            song.style.display = 'none';
+        }
+    });
+});
+
+// Manipulação das playlists sugeridas
+suggestedPlaylists.addEventListener('click', (e) => {
+    if (e.target.tagName === 'LI') {
+        const playlistId = e.target.dataset.playlistId;
+        // Aqui você pode usar a mesma lógica que usa para carregar playlists
+        // do input de URL, mas usando o playlistId diretamente
+        loadPlaylist(playlistId);
+        sideMenu.classList.remove('active');
+    }
+});
+
 // Adicione esta função que será chamada automaticamente quando a API do YouTube carregar
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('youtube-player', {
