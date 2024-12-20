@@ -7,6 +7,7 @@ let player = null;
 let isShuffleActive = false;
 let isRepeatActive = false;
 let progressInterval;
+let durationAvailable = false; // Flag para saber se a duração já foi obtida
 
 // Elementos do DOM
 const menuBtn = document.getElementById('menu-btn');
@@ -93,7 +94,15 @@ function onYouTubeIframeAPIReady() {
 
 // Adicionar esta nova função
 function onPlayerReady(event) {
-    updateProgressBar(); // Atualiza inicialmente
+    // Obter a duração quando o player estiver pronto
+    const checkDuration = setInterval(() => {
+        const duration = player.getDuration();
+        if (duration > 0) {
+            clearInterval(checkDuration);
+            durationAvailable = true;
+            durationElement.textContent = formatTime(duration); // Atualiza o tempo total
+        }
+    }, 100); // Verifica a cada 100ms
 }
 
 function onPlayerStateChange(event) {
