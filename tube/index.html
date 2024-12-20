@@ -50,11 +50,20 @@
                     </div>
                 </div>
 
+                <!-- Adicione esta nova seção para exibir as playlists -->
+                <div id="playlists-container" class="playlists-section" style="display: none;">
+                    <h2>Minhas Playlists</h2>
+                    <div class="playlists-grid" id="playlistsGrid">
+                        <!-- As playlists serão adicionadas aqui dinamicamente -->
+                    </div>
+                </div>
+
                 <!-- Modal para adicionar nova playlist -->
                 <div id="playlistModal" class="modal">
                     <div class="modal-content">
                         <h3>Adicionar Nova Playlist</h3>
                         <input type="text" id="playlistId" placeholder="Digite o ID da playlist do YouTube">
+                        <input type="text" id="playlistName" placeholder="Nome da playlist">
                         <button id="savePlaylist">Salvar</button>
                         <button id="closeModal">Cancelar</button>
                     </div>
@@ -106,5 +115,6 @@
     <script src="js/player.js"></script>
     <script src="js/youtube.js"></script>
     <script src="js/share.js"></script>
+    <script src="js/playlists.js"></script>
 </body>
 </html> 
