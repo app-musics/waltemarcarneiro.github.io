@@ -169,6 +169,7 @@
     padding: 0 16px;
     height: 20px;
     justify-content: space-between;
+    text-align: center;
   }
   
   .progress-time {
