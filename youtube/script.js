@@ -255,14 +255,17 @@ function loadSong(index) {
     document.getElementById('current-song').textContent = song.title;
     document.getElementById('current-artist').textContent = song.artist;
 
+    durationAvailable = false; // Redefine a flag de duração
+    durationElement.textContent = "0:00"; // Reseta o tempo total no UI
+
     // Carrega e reproduz o vídeo usando o player do YouTube
     if (player && player.loadVideoById) {
         player.loadVideoById(song.id);
         isPlaying = true;
         updatePlayButton();
-        updateProgressBar(); // Atualizar a barra de progresso e o tempo total ao carregar uma música
     }
 }
+
 // Controles do player
 document.getElementById('play-btn').addEventListener('click', togglePlay);
 document.getElementById('prev-btn').addEventListener('click', playPrevious);
@@ -335,8 +338,8 @@ function updateProgressBar() {
     // Atualizar o tempo atual
     currentTimeElement.textContent = formatTime(currentTime);
 
-    // Atualizar a duração total, apenas se for maior que 0
-    if (duration > 0) {
+    // Atualizar o tempo total apenas se ele já estiver disponível
+    if (durationAvailable && duration > 0) {
         durationElement.textContent = formatTime(duration);
     }
 }
