@@ -4,6 +4,9 @@ let currentPlaylist = null;
 let currentSongIndex = 0;
 let isPlaying = false;
 let player = null;
+let isShuffleActive = false;
+let isRepeatActive = false;
+let progressInterval;
 
 // Elementos do DOM
 const menuBtn = document.getElementById('menu-btn');
@@ -14,6 +17,12 @@ const searchOverlay = document.getElementById('search-overlay');
 const closeSearch = document.getElementById('close-search');
 const searchInput = document.getElementById('search-input');
 const suggestedPlaylists = document.getElementById('suggested-playlists');
+const progressBar = document.querySelector('.progress-line');
+const progress = document.querySelector('.progress');
+const currentTimeElement = document.querySelector('.current-time');
+const durationElement = document.querySelector('.duration');
+const shuffleBtn = document.getElementById('shuffle-btn');
+const repeatBtn = document.getElementById('repeat-btn');
 
 // Controle do menu
 menuBtn.addEventListener('click', () => {
@@ -85,6 +94,23 @@ function onYouTubeIframeAPIReady() {
 function onPlayerStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
         playNext();
+    }
+    if (event.data === YT.PlayerState.PLAYING) {
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        // Inicie a atualização da barra de progresso
+        progressInterval = setInterval(updateProgressBar, 1000);
+    } else if (event.data === YT.PlayerState.PAUSED) {
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        // Pare a atualização da barra de progresso
+        clearInterval(progressInterval);
+    } else if (event.data === YT.PlayerState.ENDED) {
+        if (isRepeatActive) {
+            player.playVideo();
+        } else if (isShuffleActive) {
+            playRandomSong();
+        } else {
+            playNextSong();
+        }
     }
 }
 
@@ -272,4 +298,52 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePlaylistDisplay();
     }
 });
+
+// Adicione os event listeners para os novos botões
+shuffleBtn.addEventListener('click', toggleShuffle);
+repeatBtn.addEventListener('click', toggleRepeat);
+progressBar.addEventListener('click', seekTo);
+
+function toggleShuffle() {
+    isShuffleActive = !isShuffleActive;
+    shuffleBtn.classList.toggle('active');
+}
+
+function toggleRepeat() {
+    isRepeatActive = !isRepeatActive;
+    repeatBtn.classList.toggle('active');
+}
+
+function updateProgressBar() {
+    if (player && player.getCurrentTime && player.getDuration) {
+        const currentTime = player.getCurrentTime();
+        const duration = player.getDuration();
+        const progressPercent = (currentTime / duration) * 100;
+        
+        progress.style.width = `${progressPercent}%`;
+        currentTimeElement.textContent = formatTime(currentTime);
+        durationElement.textContent = formatTime(duration);
+    }
+}
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function seekTo(e) {
+    const progressWidth = progressBar.clientWidth;
+    const clickX = e.offsetX;
+    const duration = player.getDuration();
+    const seekTime = (clickX / progressWidth) * duration;
+    player.seekTo(seekTime);
+}
+
+function playRandomSong() {
+    if (currentPlaylist && currentPlaylist.length > 0) {
+        const randomIndex = Math.floor(Math.random() * currentPlaylist.length);
+        playSong(currentPlaylist[randomIndex]);
+    }
+}
   

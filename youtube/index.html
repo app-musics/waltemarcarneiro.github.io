@@ -37,7 +37,7 @@
         <ul id="suggested-playlists">
             <li data-playlist-id="PLX_YaKXOr1s4G31MK1LOv-w3VjDwo6Bky">Dance</li>
             <li data-playlist-id="PLX_YaKXOr1s6u6O3srDxVJn720Zi2RRC5">Love Songs</li>
-            <li data-playlist-id="PL5xz61TzGouthhkIQJkDqSucTl3frfMfk">MegaMix</li>
+            
         </ul>
     </div>
 
@@ -67,8 +67,16 @@
     </div>
 
     <div class="player-controls">
+        <div class="progress-bar">
+            <div class="progress-time current-time">0:00</div>
+            <div class="progress-line">
+                <div class="progress"></div>
+            </div>
+            <div class="progress-time duration">0:00</div>
+        </div>
+
         <div class="current-song-info">
-            <img id="current-thumbnail" src="placeholder.jpg" alt="Thumbnail">
+            <img id="current-thumbnail" src="https://waltemar.com.br/youtube/placeholder.jpg" alt="Thumbnail">
             <div class="song-details">
                 <div id="current-song">Nenhuma música selecionada</div>
                 <div id="current-artist">-</div>
@@ -76,9 +84,11 @@
         </div>
 
         <div class="controls">
+            <button id="shuffle-btn" class="control-btn"><i class="fas fa-random"></i></button>
             <button id="prev-btn"><i class="fas fa-backward"></i></button>
             <button id="play-btn"><i class="fas fa-play"></i></button>
             <button id="next-btn"><i class="fas fa-forward"></i></button>
+            <button id="repeat-btn" class="control-btn"><i class="fas fa-redo"></i></button>
         </div>
     </div>
 
