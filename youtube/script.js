@@ -100,21 +100,23 @@ function onPlayerReady(event) {
 // Adicione esta função para lidar com mudanças de estado do player
 function onPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        // Inicie a atualização da barra de progresso
+        isPlaying = true;
+        updatePlayButton();
         startProgressInterval();
     } else if (event.data === YT.PlayerState.PAUSED) {
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        // Pare a atualização da barra de progresso
+        isPlaying = false;
+        updatePlayButton();
         clearInterval(progressInterval);
     } else if (event.data === YT.PlayerState.ENDED) {
         clearInterval(progressInterval);
         if (isRepeatActive) {
-            player.playVideo();
+            loadSong(currentSongIndex);
         } else if (isShuffleActive) {
             playRandomSong();
         } else {
-            playNext();
+            if (currentSongIndex < currentPlaylist.songs.length - 1) {
+                loadSong(currentSongIndex + 1);
+            }
         }
     }
 }
@@ -352,9 +354,38 @@ function updateTime(time) {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
+// Adicionar função loadSong que estava faltando
+function loadSong(index) {
+    if (!currentPlaylist || !currentPlaylist.songs[index]) return;
+    
+    currentSongIndex = index;
+    const song = currentPlaylist.songs[index];
+    
+    // Atualizar player do YouTube
+    if (player && player.loadVideoById) {
+        player.loadVideoById(song.id);
+        isPlaying = true;
+        updatePlayButton();
+    }
+    
+    // Atualizar interface
+    displaySongs();
+    updateSongInfo(song);
+}
+
+// Adicionar função para atualizar informações da música
+function updateSongInfo(song) {
+    const songTitleElement = document.querySelector('.current-song-title');
+    const songArtistElement = document.querySelector('.current-song-artist');
+    
+    if (songTitleElement) songTitleElement.textContent = song.title;
+    if (songArtistElement) songArtistElement.textContent = song.artist;
+}
+
+// Corrigir função playRandomSong
 function playRandomSong() {
-    if (currentPlaylist && currentPlaylist.length > 0) {
-        const randomIndex = Math.floor(Math.random() * currentPlaylist.length);
-        playSong(currentPlaylist[randomIndex]);
+    if (currentPlaylist && currentPlaylist.songs.length > 0) {
+        const randomIndex = Math.floor(Math.random() * currentPlaylist.songs.length);
+        loadSong(randomIndex);
     }
 }
