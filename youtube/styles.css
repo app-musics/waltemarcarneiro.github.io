@@ -183,6 +183,12 @@
     border-radius: 2px;
     cursor: pointer;
     position: relative;
+    transition: height 0.2s ease;
+  }
+  
+  /* Novo estilo para quando passar o mouse */
+  .progress-line:hover {
+    height: 6px;
   }
   
   .progress {
@@ -190,12 +196,13 @@
     left: 0;
     top: 0;
     height: 100%;
-    background: #1db954;
+    background: var(--accent-color);
     border-radius: 2px;
     width: 0%;
+    transition: width 0.1s linear;
   }
   
-  /* Adicionando o estilo do knob */
+  /* Melhorando o estilo do knob */
   .progress::after {
     content: '';
     position: absolute;
@@ -204,25 +211,15 @@
     transform: translateY(-50%);
     width: 12px;
     height: 12px;
-    background: #1db954;
+    background: var(--accent-color);
     border-radius: 50%;
     opacity: 0;
     transition: opacity 0.2s ease;
+    box-shadow: 0 0 5px rgba(78, 84, 255, 0.5);
   }
   
-  /* Mostrar o knob quando passar o mouse sobre a barra de progresso */
   .progress-line:hover .progress::after {
     opacity: 1;
-  }
-  
-  /* Efeito de hover na barra de progresso */
-  .progress-line:hover .progress {
-    background: #1ed760;
-  }
-  
-  .progress-line:hover .progress::after {
-    background: #1ed760;
-    box-shadow: 0 0 5px rgba(30, 215, 96, 0.5);
   }
   
   .control-btn {
