@@ -117,7 +117,6 @@
     /*background: var(--glass-effect);*/
     backdrop-filter: blur(10px);
     border-radius: 15px;
-    border: 3px solid #4e54ff38;
   }
   
   .song-item {
@@ -127,6 +126,7 @@
     transition: all 0.3s ease;
     cursor: pointer;
     flex-direction: column;
+    border: 3px solid #4e54ff38;
   }
   
   .song-item:hover {
