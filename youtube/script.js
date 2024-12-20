@@ -7,7 +7,6 @@ let player = null;
 let isShuffleActive = false;
 let isRepeatActive = false;
 let progressInterval;
-let durationAvailable = false; // Flag para saber se a duração já foi obtida
 
 // Elementos do DOM
 const menuBtn = document.getElementById('menu-btn');
@@ -94,39 +93,31 @@ function onYouTubeIframeAPIReady() {
 
 // Adicionar esta nova função
 function onPlayerReady(event) {
-    // Obter a duração quando o player estiver pronto
-    const checkDuration = setInterval(() => {
-        const duration = player.getDuration();
-        if (duration > 0) {
-            clearInterval(checkDuration);
-            durationAvailable = true;
-            durationElement.textContent = formatTime(duration); // Atualiza o tempo total
-        }
-    }, 100); // Verifica a cada 100ms
-}
-//
-function updateDuration() {
-    // Verifica a duração a cada 100ms até que esteja disponível
-    const checkDuration = setInterval(() => {
-        if (player && typeof player.getDuration === 'function') {
-            const duration = player.getDuration();
-            if (duration > 0) {
-                clearInterval(checkDuration); // Para o intervalo quando obtiver a duração
-                durationDisplay.textContent = formatTime(duration); // Atualiza a duração total no display
-            }
-        }
-    }, 100);
-}
-function onPlayerStateChange(event) {
-    if (event.data === YT.PlayerState.PLAYING) {
-        startProgressInterval();
-    } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-        clearInterval(progressInterval);
-    }
+    // Inicializar a duração assim que o player estiver pronto
+    updateProgressBar();
 }
 
-//ouvinte de evento para que o clique na barra de progresso funcione corretamente
-progressBar.addEventListener('click', seekTo);
+// Adicione esta função para lidar com mudanças de estado do player
+function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.PLAYING) {
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        // Inicie a atualização da barra de progresso
+        startProgressInterval();
+    } else if (event.data === YT.PlayerState.PAUSED) {
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        // Pare a atualização da barra de progresso
+        clearInterval(progressInterval);
+    } else if (event.data === YT.PlayerState.ENDED) {
+        clearInterval(progressInterval);
+        if (isRepeatActive) {
+            player.playVideo();
+        } else if (isShuffleActive) {
+            playRandomSong();
+        } else {
+            playNext();
+        }
+    }
+}
 
 // Adicionar esta nova função
 function startProgressInterval() {
@@ -267,15 +258,26 @@ function loadSong(index) {
     document.getElementById('current-song').textContent = song.title;
     document.getElementById('current-artist').textContent = song.artist;
 
-    durationAvailable = false; // Redefine a flag de duração
-    durationElement.textContent = "0:00"; // Reseta o tempo total no UI
-
     // Carrega e reproduz o vídeo usando o player do YouTube
     if (player && player.loadVideoById) {
         player.loadVideoById(song.id);
         isPlaying = true;
         updatePlayButton();
     }
+
+    // Atualizar o tempo inicial
+    currentTimeElement.textContent = '0:00';
+    
+    // Atualizar o tempo total quando o áudio for carregado
+    const audio = document.getElementById('current-audio');
+    audio.addEventListener('loadedmetadata', () => {
+        durationElement.textContent = updateTime(audio.duration);
+    });
+    
+    // Atualizar o tempo atual durante a reprodução
+    audio.addEventListener('timeupdate', () => {
+        currentTimeElement.textContent = updateTime(audio.currentTime);
+    });
 }
 
 // Controles do player
@@ -338,22 +340,18 @@ function toggleRepeat() {
 }
 
 function updateProgressBar() {
-    if (!player || !player.getCurrentTime || !player.getDuration) return;
+    if (!player || typeof player.getCurrentTime !== 'function' || typeof player.getDuration !== 'function') return;
 
     const currentTime = player.getCurrentTime();
     const duration = player.getDuration();
 
-    // Atualizar a barra de progresso
-    const progressPercentage = (currentTime / duration) * 100;
-    progress.style.width = `${progressPercentage}%`;
-
-    // Atualizar o tempo atual
-    currentTimeElement.textContent = formatTime(currentTime);
-
-    // Atualizar o tempo total apenas se ele já estiver disponível
-    if (durationAvailable && duration > 0) {
-        durationElement.textContent = formatTime(duration);
+    if (duration > 0) {
+        const progressPercent = (currentTime / duration) * 100;
+        progress.style.width = `${progressPercent}%`;
     }
+
+    currentTimeElement.textContent = formatTime(currentTime);
+    durationElement.textContent = formatTime(duration);
 }
 
 function formatTime(seconds) {
@@ -374,21 +372,10 @@ function seekTo(event) {
     player.seekTo(newTime, true);
 }
 
-
-function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
-
-function seekTo(e) {
-    if (player && player.getDuration) {
-        const rect = progressBar.getBoundingClientRect();
-        const clickPosition = e.clientX - rect.left;
-        const progressWidth = rect.width;
-        const seekTime = (clickPosition / progressWidth) * player.getDuration();
-        player.seekTo(seekTime, true);
-    }
+function updateTime(time) {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
 function playRandomSong() {
