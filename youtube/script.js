@@ -170,7 +170,7 @@ async function fetchPlaylistData(playlistId) {
             songs: data.items.map(item => ({
                 id: item.snippet.resourceId.videoId,
                 title: item.snippet.title,
-                thumbnail: item.snippet.thumbnails.default.url,
+                thumbnail: item.snippet.thumbnails.hqdefault.url,
                 artist: item.snippet.videoOwnerChannelTitle || 'Artista Desconhecido'
             }))
         };
@@ -372,4 +372,27 @@ function playRandomSong() {
         const randomIndex = Math.floor(Math.random() * currentPlaylist.length);
         playSong(currentPlaylist[randomIndex]);
     }
+}
+//THUMBNAIL
+function getVideoThumbnails(videoId) {
+    // Use a miniatura de alta resolução
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`; 
+}
+
+// Exemplo de uso para exibir miniaturas
+function displayThumbnails(playlistItems) {
+    const container = document.getElementById('thumbnails-container');
+    container.innerHTML = ''; // Limpa o conteúdo anterior
+
+    playlistItems.forEach(item => {
+        const videoId = item.snippet.resourceId.videoId;
+        const thumbnailUrl = getVideoThumbnails(videoId);
+
+        const img = document.createElement('img');
+        img.src = thumbnailUrl;
+        img.alt = item.snippet.title;
+        img.className = 'thumbnail';
+
+        container.appendChild(img);
+    });
 }
