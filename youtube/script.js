@@ -93,34 +93,28 @@ function onYouTubeIframeAPIReady() {
 
 // Adicionar esta nova função
 function onPlayerReady(event) {
-    // Aguardar um momento para garantir que o player esteja totalmente carregado
-    setTimeout(() => {
-        const duration = player.getDuration();
-        durationElement.textContent = formatTime(duration);
-        updateProgressBar();
-    }, 1000);
+    // Inicializar a duração assim que o player estiver pronto
+    updateProgressBar();
 }
 
 // Adicione esta função para lidar com mudanças de estado do player
 function onPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
-        isPlaying = true;
-        updatePlayButton();
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        // Inicie a atualização da barra de progresso
         startProgressInterval();
     } else if (event.data === YT.PlayerState.PAUSED) {
-        isPlaying = false;
-        updatePlayButton();
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        // Pare a atualização da barra de progresso
         clearInterval(progressInterval);
     } else if (event.data === YT.PlayerState.ENDED) {
         clearInterval(progressInterval);
         if (isRepeatActive) {
-            loadSong(currentSongIndex);
+            player.playVideo();
         } else if (isShuffleActive) {
             playRandomSong();
         } else {
-            if (currentSongIndex < currentPlaylist.songs.length - 1) {
-                loadSong(currentSongIndex + 1);
-            }
+            playNext();
         }
     }
 }
@@ -157,7 +151,7 @@ function extractPlaylistId(url) {
 // Função para buscar dados da playlist
 async function fetchPlaylistData(playlistId) {
     const API_KEY = 'AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY'; // Você precisa substituir por uma chave API válida
-    const apiUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${API_KEY}`;
+    const apiUrl = https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${API_KEY};
 
     try {
         const response = await fetch(apiUrl);
@@ -172,7 +166,7 @@ async function fetchPlaylistData(playlistId) {
         }
 
         // Buscar informações adicionais da playlist
-        const playlistInfoUrl = `https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${playlistId}&key=${API_KEY}`;
+        const playlistInfoUrl = https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${playlistId}&key=${API_KEY};
         const playlistResponse = await fetch(playlistInfoUrl);
         const playlistData = await playlistResponse.json();
         
@@ -208,11 +202,11 @@ async function fetchPlaylistData(playlistId) {
 // Função para atualizar display das playlists
 function updatePlaylistDisplay() {
     const playlistList = document.getElementById('playlist-list');
-    playlistList.innerHTML = playlists.map(playlist => `
+    playlistList.innerHTML = playlists.map(playlist => 
         <div class="playlist-item" onclick="loadPlaylist('${playlist.id}')">
             <i class="fas fa-music"></i> ${playlist.name}
         </div>
-    `).join('');
+    ).join('');
 }
 
 // Função para carregar playlist
@@ -242,7 +236,7 @@ function displaySongs() {
     if (!currentPlaylist) return;
 
     const songsContainer = document.getElementById('songs-container');
-    songsContainer.innerHTML = currentPlaylist.songs.map((song, index) => `
+    songsContainer.innerHTML = currentPlaylist.songs.map((song, index) => 
         <div class="song-item ${currentSongIndex === index ? 'active' : ''}" onclick="loadSong(${index})">
             <img src="${song.thumbnail}" alt="${song.title}">
             <div class="song-info">
@@ -250,7 +244,26 @@ function displaySongs() {
                 <div class="song-artist">${song.artist}</div>
             </div>
         </div>
-    `).join('');
+    ).join('');
+}
+
+// Função para carregar música
+function loadSong(index) {
+    if (!currentPlaylist || !currentPlaylist.songs[index]) return;
+
+    currentSongIndex = index;
+    const song = currentPlaylist.songs[index];
+    
+    document.getElementById('current-thumbnail').src = song.thumbnail;
+    document.getElementById('current-song').textContent = song.title;
+    document.getElementById('current-artist').textContent = song.artist;
+
+    // Carrega e reproduz o vídeo usando o player do YouTube
+    if (player && player.loadVideoById) {
+        player.loadVideoById(song.id);
+        isPlaying = true;
+        updatePlayButton();
+    }
 }
 
 // Controles do player
@@ -313,98 +326,42 @@ function toggleRepeat() {
 }
 
 function updateProgressBar() {
-    if (!player || !player.getCurrentTime) return;
-    
-    try {
-        const currentTime = player.getCurrentTime() || 0;
-        const duration = player.getDuration() || 0;
-
-        // Atualizar a duração total se ainda não estiver definida
-        if (duration > 0 && durationElement.textContent === '0:00') {
-            durationElement.textContent = formatTime(duration);
-        }
-
-        if (duration > 0) {
-            const progressPercent = (currentTime / duration) * 100;
-            progress.style.width = `${progressPercent}%`;
+    if (player && player.getCurrentTime && player.getDuration) {
+        try {
+            const currentTime = player.getCurrentTime() || 0;
+            const duration = player.getDuration() || 0;
             
-            // Atualizar os elementos de tempo
-            currentTimeElement.textContent = formatTime(currentTime);
+            if (duration > 0) {
+                const progressPercent = (currentTime / duration) * 100;
+                progress.style.width = ${progressPercent}%;
+                currentTimeElement.textContent = formatTime(currentTime);
+                durationElement.textContent = formatTime(duration);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar barra de progresso:', error);
         }
-    } catch (error) {
-        console.error('Erro ao atualizar barra de progresso:', error);
     }
 }
 
 function formatTime(seconds) {
-    if (!seconds || isNaN(seconds)) return '0:00';
-    
     const minutes = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    const remainingSeconds = Math.floor(seconds % 60);
+    return ${minutes}:${remainingSeconds.toString().padStart(2, '0')};
 }
 
-function seekTo(event) {
-    if (!player || typeof player.seekTo !== 'function' || typeof player.getDuration !== 'function') return;
-
-    const rect = progressBar.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const width = rect.width;
-    const duration = player.getDuration();
-
-    const newTime = (clickX / width) * duration;
-    player.seekTo(newTime, true);
-}
-
-function updateTime(time) {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-}
-
-// Adicionar função loadSong que estava faltando
-function loadSong(index) {
-    if (!currentPlaylist || !currentPlaylist.songs[index]) return;
-    
-    currentSongIndex = index;
-    const song = currentPlaylist.songs[index];
-    
-    // Atualizar player do YouTube
-    if (player && player.loadVideoById) {
-        player.loadVideoById(song.id);
-        
-        // Resetar o tempo mostrado enquanto carrega o novo vídeo
-        currentTimeElement.textContent = '0:00';
-        durationElement.textContent = '0:00';
-        
-        // Aguardar o carregamento do vídeo para atualizar a duração
-        setTimeout(() => {
-            const duration = player.getDuration();
-            durationElement.textContent = formatTime(duration);
-        }, 1000);
-
-        isPlaying = true;
-        updatePlayButton();
+function seekTo(e) {
+    if (player && player.getDuration) {
+        const rect = progressBar.getBoundingClientRect();
+        const clickPosition = e.clientX - rect.left;
+        const progressWidth = rect.width;
+        const seekTime = (clickPosition / progressWidth) * player.getDuration();
+        player.seekTo(seekTime, true);
     }
-    
-    // Atualizar interface
-    displaySongs();
-    updateSongInfo(song);
 }
 
-// Adicionar função para atualizar informações da música
-function updateSongInfo(song) {
-    const songTitleElement = document.querySelector('.current-song-title');
-    const songArtistElement = document.querySelector('.current-song-artist');
-    
-    if (songTitleElement) songTitleElement.textContent = song.title;
-    if (songArtistElement) songArtistElement.textContent = song.artist;
-}
-
-// Corrigir função playRandomSong
 function playRandomSong() {
-    if (currentPlaylist && currentPlaylist.songs.length > 0) {
-        const randomIndex = Math.floor(Math.random() * currentPlaylist.songs.length);
-        loadSong(randomIndex);
+    if (currentPlaylist && currentPlaylist.length > 0) {
+        const randomIndex = Math.floor(Math.random() * currentPlaylist.length);
+        playSong(currentPlaylist[randomIndex]);
     }
 }
