@@ -314,18 +314,22 @@ function toggleRepeat() {
 }
 
 function updateProgressBar() {
-    if (!player || typeof player.getCurrentTime !== 'function' || typeof player.getDuration !== 'function') return;
+    if (!player || !player.getCurrentTime || !player.getDuration) return;
 
     const currentTime = player.getCurrentTime();
     const duration = player.getDuration();
 
-    if (duration > 0) {
-        const progressPercent = (currentTime / duration) * 100;
-        progress.style.width = `${progressPercent}%`;
-    }
+    // Atualizar a barra de progresso
+    const progressPercentage = (currentTime / duration) * 100;
+    progress.style.width = `${progressPercentage}%`;
 
+    // Atualizar o tempo atual
     currentTimeElement.textContent = formatTime(currentTime);
-    durationElement.textContent = formatTime(duration);
+
+    // Atualizar a duração total, apenas se for maior que 0
+    if (duration > 0) {
+        durationElement.textContent = formatTime(duration);
+    }
 }
 
 function formatTime(seconds) {
