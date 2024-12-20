@@ -104,7 +104,19 @@ function onPlayerReady(event) {
         }
     }, 100); // Verifica a cada 100ms
 }
-
+//
+function updateDuration() {
+    // Verifica a duração a cada 100ms até que esteja disponível
+    const checkDuration = setInterval(() => {
+        if (player && typeof player.getDuration === 'function') {
+            const duration = player.getDuration();
+            if (duration > 0) {
+                clearInterval(checkDuration); // Para o intervalo quando obtiver a duração
+                durationDisplay.textContent = formatTime(duration); // Atualiza a duração total no display
+            }
+        }
+    }, 100);
+}
 function onPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
         startProgressInterval();
