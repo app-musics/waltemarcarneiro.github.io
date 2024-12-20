@@ -25,13 +25,8 @@ function displayPlaylists() {
     playlistsGrid.innerHTML = '';
 
     playlists.forEach(playlist => {
-        const playlistElement = document.createElement('div');
-        playlistElement.className = 'playlist-item';
-        playlistElement.innerHTML = `
-            <h3>${playlist.name}</h3>
-            <button onclick="loadYouTubePlaylist('${playlist.id}')">Reproduzir</button>
-        `;
-        playlistsGrid.appendChild(playlistElement);
+        const card = createPlaylistCard(playlist);
+        playlistsGrid.appendChild(card);
     });
 }
 
@@ -91,16 +86,82 @@ function createPlaylistCard(playlist) {
         </button>
     `;
 
-    // Adicionar evento de clique ao botão
+    // Corrigindo o evento de clique do botão
     const playButton = card.querySelector('.play-playlist-btn');
     playButton.addEventListener('click', () => {
-        // Carregar e iniciar a reprodução da playlist
-        if (typeof loadPlaylist === 'function') {
-            loadPlaylist(playlist.id);
-        } else {
-            console.error('Função loadPlaylist não encontrada');
-        }
+        document.getElementById('youtube-container').style.display = 'block';
+        document.getElementById('playlists-container').style.display = 'none';
+        loadYouTubePlaylist(playlist.id);
     });
 
     return card;
 }
+
+// Adicionar esta nova função para obter o ID do primeiro vídeo
+function getFirstVideoId(playlistId) {
+    // Retorna um ID de vídeo padrão caso não consiga obter o primeiro vídeo
+    return 'default-video-id';
+}
+
+class PlaylistManager {
+  constructor() {
+    this.playlist = [];
+    this.currentIndex = 0;
+    this.container = document.querySelector('.playlist-container');
+  }
+
+  loadPlaylist(songs) {
+    this.playlist = songs;
+    this.renderPlaylist();
+  }
+
+  renderPlaylist() {
+    this.container.innerHTML = '';
+    
+    this.playlist.forEach((song, index) => {
+      const item = document.createElement('div');
+      item.className = `playlist-item ${index === this.currentIndex ? 'playing' : ''}`;
+      
+      item.innerHTML = `
+        <span class="playlist-item-title">${song.title}</span>
+      `;
+      
+      item.addEventListener('click', () => this.playSong(index));
+      this.container.appendChild(item);
+    });
+  }
+
+  playSong(index) {
+    this.currentIndex = index;
+    const song = this.playlist[index];
+    // Emite evento para o player tocar a música
+    document.dispatchEvent(new CustomEvent('play-song', { detail: song }));
+    this.renderPlaylist();
+  }
+
+  nextSong() {
+    this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
+    this.playSong(this.currentIndex);
+  }
+
+  previousSong() {
+    this.currentIndex = (this.currentIndex - 1 + this.playlist.length) % this.playlist.length;
+    this.playSong(this.currentIndex);
+  }
+
+  togglePlaylist() {
+    this.container.classList.toggle('active');
+  }
+}
+
+// Inicialização
+const playlistManager = new PlaylistManager();
+
+// Exemplo de uso
+const samplePlaylist = [
+  { title: 'Música 1', url: 'path/to/song1.mp3' },
+  { title: 'Música 2', url: 'path/to/song2.mp3' },
+  // Adicione mais músicas conforme necessário
+];
+
+playlistManager.loadPlaylist(samplePlaylist);
