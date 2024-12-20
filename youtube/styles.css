@@ -178,12 +178,14 @@
   
   .progress-line {
     flex: 1;
-    height: 4px;
+    height: 3px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
     cursor: pointer;
-    position: relative;
-    transition: height 0.2s ease;
+    position: absolute;
+    margin-top: -16px;
+    left: 2px;
+    right: 2px;
   }
   
   /* Novo estilo para quando passar o mouse */
