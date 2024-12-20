@@ -313,19 +313,21 @@ function toggleRepeat() {
     repeatBtn.classList.toggle('active');
 }
 
+// A FUNCAO DO CONTROLE DE TEMPO
+
 function updateProgressBar() {
     if (!player || typeof player.getCurrentTime !== 'function' || typeof player.getDuration !== 'function') return;
 
     const currentTime = player.getCurrentTime();
     const duration = player.getDuration();
 
-    if (duration > 0) {
-        const progressPercent = (currentTime / duration) * 100;
-        progress.style.width = `${progressPercent}%`;
-    }
-
+    // Atualiza o tempo atual
     currentTimeElement.textContent = formatTime(currentTime);
-    durationElement.textContent = formatTime(duration);
+
+    // Atualiza a duração total
+    if (!isNaN(duration) && duration > 0) {
+        durationElement.textContent = formatTime(duration);
+    }
 }
 
 function formatTime(seconds) {
