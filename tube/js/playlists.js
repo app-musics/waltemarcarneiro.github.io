@@ -78,3 +78,29 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('playlists-container').style.display = 'block';
     });
 }); 
+
+function createPlaylistCard(playlist) {
+    const card = document.createElement('div');
+    card.className = 'playlist-card';
+    card.innerHTML = `
+        <img src="https://img.youtube.com/vi/${getFirstVideoId(playlist.id)}/mqdefault.jpg" alt="${playlist.name}">
+        <h3>${playlist.name}</h3>
+        <button class="play-playlist-btn" data-playlist-id="${playlist.id}">
+            <span class="material-icons">play_arrow</span>
+            Reproduzir
+        </button>
+    `;
+
+    // Adicionar evento de clique ao botão
+    const playButton = card.querySelector('.play-playlist-btn');
+    playButton.addEventListener('click', () => {
+        // Carregar e iniciar a reprodução da playlist
+        if (typeof loadPlaylist === 'function') {
+            loadPlaylist(playlist.id);
+        } else {
+            console.error('Função loadPlaylist não encontrada');
+        }
+    });
+
+    return card;
+}
