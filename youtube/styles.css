@@ -149,7 +149,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--glass-effect);
+    background: rgb(35 42 93 / 40%);
     backdrop-filter: blur(15px);
     padding: 20px;
     display: flex;
@@ -299,7 +299,7 @@
     left: 0;
     right: 0;
     height: 60px;
-    background: var(--glass-effect);
+    background: rgb(35 42 93 / 40%);
     display: flex;
     justify-content: space-between;
     align-items: center;
