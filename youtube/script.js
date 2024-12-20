@@ -321,11 +321,11 @@ function updateProgressBar() {
 
     if (duration > 0) {
         const progressPercent = (currentTime / duration) * 100;
-        progress.style.width = ${progressPercent}%;
+        progress.style.width = `${progressPercent}%`;
     }
 
     currentTimeElement.textContent = formatTime(currentTime);
-    totalTimeElement.textContent = formatTime(totalTime);
+    durationElement.textContent = formatTime(duration);
 }
 
 function formatTime(seconds) {
