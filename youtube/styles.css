@@ -299,7 +299,7 @@
     left: 0;
     right: 0;
     height: 60px;
-    background-color: #1a1a1a;
+    background: var(--glass-effect);
     display: flex;
     justify-content: space-between;
     align-items: center;
