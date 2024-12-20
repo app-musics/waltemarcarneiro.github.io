@@ -95,14 +95,18 @@ function onYouTubeIframeAPIReady() {
 function onPlayerReady(event) {
     updateProgressBar(); // Atualiza inicialmente
 }
-
+//Verifica o estado YT.PlayerState.ENDED e avança para a próxima música
 function onPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
         startProgressInterval();
-    } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+    } else if (event.data === YT.PlayerState.PAUSED) {
         clearInterval(progressInterval);
+    } else if (event.data === YT.PlayerState.ENDED) {
+        clearInterval(progressInterval);
+        playNext(); // Avança para a próxima música automaticamente
     }
 }
+
 
 //ouvinte de evento para que o clique na barra de progresso funcione corretamente
 progressBar.addEventListener('click', seekTo);
