@@ -93,8 +93,12 @@ function onYouTubeIframeAPIReady() {
 
 // Adicionar esta nova função
 function onPlayerReady(event) {
-    // Inicializar a duração assim que o player estiver pronto
-    updateProgressBar();
+    // Aguardar um momento para garantir que o player esteja totalmente carregado
+    setTimeout(() => {
+        const duration = player.getDuration();
+        durationElement.textContent = formatTime(duration);
+        updateProgressBar();
+    }, 1000);
 }
 
 // Adicione esta função para lidar com mudanças de estado do player
@@ -315,13 +319,17 @@ function updateProgressBar() {
         const currentTime = player.getCurrentTime() || 0;
         const duration = player.getDuration() || 0;
 
+        // Atualizar a duração total se ainda não estiver definida
+        if (duration > 0 && durationElement.textContent === '0:00') {
+            durationElement.textContent = formatTime(duration);
+        }
+
         if (duration > 0) {
             const progressPercent = (currentTime / duration) * 100;
             progress.style.width = `${progressPercent}%`;
             
             // Atualizar os elementos de tempo
             currentTimeElement.textContent = formatTime(currentTime);
-            durationElement.textContent = formatTime(duration);
         }
     } catch (error) {
         console.error('Erro ao atualizar barra de progresso:', error);
@@ -364,6 +372,17 @@ function loadSong(index) {
     // Atualizar player do YouTube
     if (player && player.loadVideoById) {
         player.loadVideoById(song.id);
+        
+        // Resetar o tempo mostrado enquanto carrega o novo vídeo
+        currentTimeElement.textContent = '0:00';
+        durationElement.textContent = '0:00';
+        
+        // Aguardar o carregamento do vídeo para atualizar a duração
+        setTimeout(() => {
+            const duration = player.getDuration();
+            durationElement.textContent = formatTime(duration);
+        }, 1000);
+
         isPlaying = true;
         updatePlayButton();
     }
