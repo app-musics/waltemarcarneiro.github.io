@@ -325,9 +325,9 @@ function updateProgressBar() {
     currentTimeElement.textContent = formatTime(currentTime);
 
     // Atualiza a duração total
-    if (!isNaN(duration) && duration > 0) {
-        durationElement.textContent = formatTime(duration);
-    }
+    if (duration > 0) {
+             durationDisplay.textContent = formatTime(duration);
+            }
 }
 
 function formatTime(seconds) {
