@@ -93,31 +93,19 @@ function onYouTubeIframeAPIReady() {
 
 // Adicionar esta nova função
 function onPlayerReady(event) {
-    // Inicializar a duração assim que o player estiver pronto
-    updateProgressBar();
+    updateProgressBar(); // Atualiza inicialmente
 }
 
-// Adicione esta função para lidar com mudanças de estado do player
 function onPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        // Inicie a atualização da barra de progresso
         startProgressInterval();
-    } else if (event.data === YT.PlayerState.PAUSED) {
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        // Pare a atualização da barra de progresso
+    } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
         clearInterval(progressInterval);
-    } else if (event.data === YT.PlayerState.ENDED) {
-        clearInterval(progressInterval);
-        if (isRepeatActive) {
-            player.playVideo();
-        } else if (isShuffleActive) {
-            playRandomSong();
-        } else {
-            playNext();
-        }
     }
 }
+
+//ouvinte de evento para que o clique na barra de progresso funcione corretamente
+progressBar.addEventListener('click', seekTo);
 
 // Adicionar esta nova função
 function startProgressInterval() {
@@ -326,22 +314,38 @@ function toggleRepeat() {
 }
 
 function updateProgressBar() {
-    if (player && player.getCurrentTime && player.getDuration) {
-        try {
-            const currentTime = player.getCurrentTime() || 0;
-            const duration = player.getDuration() || 0;
-            
-            if (duration > 0) {
-                const progressPercent = (currentTime / duration) * 100;
-                progress.style.width = `${progressPercent}%`;
-                currentTimeElement.textContent = formatTime(currentTime);
-                durationElement.textContent = formatTime(duration);
-            }
-        } catch (error) {
-            console.error('Erro ao atualizar barra de progresso:', error);
-        }
+    if (!player || typeof player.getCurrentTime !== 'function' || typeof player.getDuration !== 'function') return;
+
+    const currentTime = player.getCurrentTime();
+    const duration = player.getDuration();
+
+    if (duration > 0) {
+        const progressPercent = (currentTime / duration) * 100;
+        progress.style.width = `${progressPercent}%`;
     }
+
+    currentTimeElement.textContent = formatTime(currentTime);
+    durationElement.textContent = formatTime(duration);
 }
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
+function seekTo(event) {
+    if (!player || typeof player.seekTo !== 'function' || typeof player.getDuration !== 'function') return;
+
+    const rect = progressBar.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const width = rect.width;
+    const duration = player.getDuration();
+
+    const newTime = (clickX / width) * duration;
+    player.seekTo(newTime, true);
+}
+
 
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
