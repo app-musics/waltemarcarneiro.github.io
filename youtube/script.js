@@ -251,9 +251,9 @@ function loadSong(index) {
         player.loadVideoById(song.id);
         isPlaying = true;
         updatePlayButton();
+        updateProgressBar(); // Atualizar a barra de progresso e o tempo total ao carregar uma música
     }
 }
-
 // Controles do player
 document.getElementById('play-btn').addEventListener('click', togglePlay);
 document.getElementById('prev-btn').addEventListener('click', playPrevious);
