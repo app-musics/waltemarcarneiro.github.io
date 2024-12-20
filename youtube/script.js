@@ -247,39 +247,6 @@ function displaySongs() {
     `).join('');
 }
 
-// Função para carregar música
-function loadSong(index) {
-    if (!currentPlaylist || !currentPlaylist.songs[index]) return;
-
-    currentSongIndex = index;
-    const song = currentPlaylist.songs[index];
-    
-    document.getElementById('current-thumbnail').src = song.thumbnail;
-    document.getElementById('current-song').textContent = song.title;
-    document.getElementById('current-artist').textContent = song.artist;
-
-    // Carrega e reproduz o vídeo usando o player do YouTube
-    if (player && player.loadVideoById) {
-        player.loadVideoById(song.id);
-        isPlaying = true;
-        updatePlayButton();
-    }
-
-    // Atualizar o tempo inicial
-    currentTimeElement.textContent = '0:00';
-    
-    // Atualizar o tempo total quando o áudio for carregado
-    const audio = document.getElementById('current-audio');
-    audio.addEventListener('loadedmetadata', () => {
-        durationElement.textContent = updateTime(audio.duration);
-    });
-    
-    // Atualizar o tempo atual durante a reprodução
-    audio.addEventListener('timeupdate', () => {
-        currentTimeElement.textContent = updateTime(audio.currentTime);
-    });
-}
-
 // Controles do player
 document.getElementById('play-btn').addEventListener('click', togglePlay);
 document.getElementById('prev-btn').addEventListener('click', playPrevious);
@@ -340,21 +307,28 @@ function toggleRepeat() {
 }
 
 function updateProgressBar() {
-    if (!player || typeof player.getCurrentTime !== 'function' || typeof player.getDuration !== 'function') return;
+    if (!player || !player.getCurrentTime) return;
+    
+    try {
+        const currentTime = player.getCurrentTime() || 0;
+        const duration = player.getDuration() || 0;
 
-    const currentTime = player.getCurrentTime();
-    const duration = player.getDuration();
-
-    if (duration > 0) {
-        const progressPercent = (currentTime / duration) * 100;
-        progress.style.width = `${progressPercent}%`;
+        if (duration > 0) {
+            const progressPercent = (currentTime / duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+            
+            // Atualizar os elementos de tempo
+            currentTimeElement.textContent = formatTime(currentTime);
+            durationElement.textContent = formatTime(duration);
+        }
+    } catch (error) {
+        console.error('Erro ao atualizar barra de progresso:', error);
     }
-
-    currentTimeElement.textContent = formatTime(currentTime);
-    durationElement.textContent = formatTime(duration);
 }
 
 function formatTime(seconds) {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
