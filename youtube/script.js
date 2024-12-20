@@ -326,21 +326,18 @@ function toggleRepeat() {
 }
 
 function updateProgressBar() {
-    if (player && player.getCurrentTime && player.getDuration) {
-        try {
-            const currentTime = player.getCurrentTime() || 0;
-            const duration = player.getDuration() || 0;
-            
-            if (duration > 0) {
-                const progressPercent = (currentTime / duration) * 100;
-                progress.style.width = ${progressPercent}%;
-                currentTimeElement.textContent = formatTime(currentTime);
-                durationElement.textContent = formatTime(duration);
-            }
-        } catch (error) {
-            console.error('Erro ao atualizar barra de progresso:', error);
-        }
+    if (!player || typeof player.getCurrentTime !== 'function' || typeof player.getDuration !== 'function') return;
+
+    const currentTime = player.getCurrentTime();
+    const duration = player.getDuration();
+
+    if (duration > 0) {
+        const progressPercent = (currentTime / duration) * 100;
+        progress.style.width = `${progressPercent}%`;
     }
+
+    currentTimeElement.textContent = formatTime(currentTime);
+    durationElement.textContent = formatTime(duration);
 }
 
 function formatTime(seconds) {
@@ -349,14 +346,16 @@ function formatTime(seconds) {
     return ${minutes}:${remainingSeconds.toString().padStart(2, '0')};
 }
 
-function seekTo(e) {
-    if (player && player.getDuration) {
-        const rect = progressBar.getBoundingClientRect();
-        const clickPosition = e.clientX - rect.left;
-        const progressWidth = rect.width;
-        const seekTime = (clickPosition / progressWidth) * player.getDuration();
-        player.seekTo(seekTime, true);
-    }
+function seekTo(event) {
+    if (!player || typeof player.seekTo !== 'function' || typeof player.getDuration !== 'function') return;
+
+    const rect = progressBar.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const width = rect.width;
+    const duration = player.getDuration();
+
+    const newTime = (clickX / width) * duration;
+    player.seekTo(newTime, true);
 }
 
 function playRandomSong() {
