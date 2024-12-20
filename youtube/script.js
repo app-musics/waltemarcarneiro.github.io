@@ -85,33 +85,44 @@ function onYouTubeIframeAPIReady() {
             'controls': 0
         },
         events: {
+            'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
         }
     });
 }
 
+// Adicionar esta nova função
+function onPlayerReady(event) {
+    // Inicializar a duração assim que o player estiver pronto
+    updateProgressBar();
+}
+
 // Adicione esta função para lidar com mudanças de estado do player
 function onPlayerStateChange(event) {
-    if (event.data === YT.PlayerState.ENDED) {
-        playNext();
-    }
     if (event.data === YT.PlayerState.PLAYING) {
         playBtn.innerHTML = '<i class="fas fa-pause"></i>';
         // Inicie a atualização da barra de progresso
-        progressInterval = setInterval(updateProgressBar, 1000);
+        startProgressInterval();
     } else if (event.data === YT.PlayerState.PAUSED) {
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
         // Pare a atualização da barra de progresso
         clearInterval(progressInterval);
     } else if (event.data === YT.PlayerState.ENDED) {
+        clearInterval(progressInterval);
         if (isRepeatActive) {
             player.playVideo();
         } else if (isShuffleActive) {
             playRandomSong();
         } else {
-            playNextSong();
+            playNext();
         }
     }
+}
+
+// Adicionar esta nova função
+function startProgressInterval() {
+    clearInterval(progressInterval); // Limpar intervalo existente
+    progressInterval = setInterval(updateProgressBar, 500); // Atualizar a cada 500ms
 }
 
 // Função para adicionar playlist
@@ -316,13 +327,19 @@ function toggleRepeat() {
 
 function updateProgressBar() {
     if (player && player.getCurrentTime && player.getDuration) {
-        const currentTime = player.getCurrentTime();
-        const duration = player.getDuration();
-        const progressPercent = (currentTime / duration) * 100;
-        
-        progress.style.width = `${progressPercent}%`;
-        currentTimeElement.textContent = formatTime(currentTime);
-        durationElement.textContent = formatTime(duration);
+        try {
+            const currentTime = player.getCurrentTime() || 0;
+            const duration = player.getDuration() || 0;
+            
+            if (duration > 0) {
+                const progressPercent = (currentTime / duration) * 100;
+                progress.style.width = `${progressPercent}%`;
+                currentTimeElement.textContent = formatTime(currentTime);
+                durationElement.textContent = formatTime(duration);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar barra de progresso:', error);
+        }
     }
 }
 
@@ -333,11 +350,13 @@ function formatTime(seconds) {
 }
 
 function seekTo(e) {
-    const progressWidth = progressBar.clientWidth;
-    const clickX = e.offsetX;
-    const duration = player.getDuration();
-    const seekTime = (clickX / progressWidth) * duration;
-    player.seekTo(seekTime);
+    if (player && player.getDuration) {
+        const rect = progressBar.getBoundingClientRect();
+        const clickPosition = e.clientX - rect.left;
+        const progressWidth = rect.width;
+        const seekTime = (clickPosition / progressWidth) * player.getDuration();
+        player.seekTo(seekTime, true);
+    }
 }
 
 function playRandomSong() {
@@ -346,4 +365,3 @@ function playRandomSong() {
         playSong(currentPlaylist[randomIndex]);
     }
 }
-  
