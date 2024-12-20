@@ -170,7 +170,8 @@ async function fetchPlaylistData(playlistId) {
             songs: data.items.map(item => ({
                 id: item.snippet.resourceId.videoId,
                 title: item.snippet.title,
-                thumbnail: item.snippet.thumbnails.hqdefault.url,
+                // Alterado para usar a miniatura de alta qualidade
+                thumbnail: item.snippet.thumbnails.high.url || item.snippet.thumbnails.default.url,
                 artist: item.snippet.videoOwnerChannelTitle || 'Artista Desconhecido'
             }))
         };
