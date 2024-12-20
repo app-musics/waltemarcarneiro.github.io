@@ -93,31 +93,19 @@ function onYouTubeIframeAPIReady() {
 
 // Adicionar esta nova função
 function onPlayerReady(event) {
-    // Inicializar a duração assim que o player estiver pronto
-    updateProgressBar();
+    updateProgressBar(); // Atualiza inicialmente
 }
 
-// Adicione esta função para lidar com mudanças de estado do player
 function onPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        // Inicie a atualização da barra de progresso
         startProgressInterval();
-    } else if (event.data === YT.PlayerState.PAUSED) {
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        // Pare a atualização da barra de progresso
+    } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
         clearInterval(progressInterval);
-    } else if (event.data === YT.PlayerState.ENDED) {
-        clearInterval(progressInterval);
-        if (isRepeatActive) {
-            player.playVideo();
-        } else if (isShuffleActive) {
-            playRandomSong();
-        } else {
-            playNext();
-        }
     }
 }
+
+//ouvinte de evento para que o clique na barra de progresso funcione corretamente
+progressBar.addEventListener('click', seekTo);
 
 // Adicionar esta nova função
 function startProgressInterval() {
@@ -151,7 +139,7 @@ function extractPlaylistId(url) {
 // Função para buscar dados da playlist
 async function fetchPlaylistData(playlistId) {
     const API_KEY = 'AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY'; // Você precisa substituir por uma chave API válida
-    const apiUrl = https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${API_KEY};
+    const apiUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${API_KEY}`;
 
     try {
         const response = await fetch(apiUrl);
@@ -166,7 +154,7 @@ async function fetchPlaylistData(playlistId) {
         }
 
         // Buscar informações adicionais da playlist
-        const playlistInfoUrl = https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${playlistId}&key=${API_KEY};
+        const playlistInfoUrl = `https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${playlistId}&key=${API_KEY}`;
         const playlistResponse = await fetch(playlistInfoUrl);
         const playlistData = await playlistResponse.json();
         
@@ -202,11 +190,11 @@ async function fetchPlaylistData(playlistId) {
 // Função para atualizar display das playlists
 function updatePlaylistDisplay() {
     const playlistList = document.getElementById('playlist-list');
-    playlistList.innerHTML = playlists.map(playlist => 
+    playlistList.innerHTML = playlists.map(playlist => `
         <div class="playlist-item" onclick="loadPlaylist('${playlist.id}')">
             <i class="fas fa-music"></i> ${playlist.name}
         </div>
-    ).join('');
+    `).join('');
 }
 
 // Função para carregar playlist
@@ -236,7 +224,7 @@ function displaySongs() {
     if (!currentPlaylist) return;
 
     const songsContainer = document.getElementById('songs-container');
-    songsContainer.innerHTML = currentPlaylist.songs.map((song, index) => 
+    songsContainer.innerHTML = currentPlaylist.songs.map((song, index) => `
         <div class="song-item ${currentSongIndex === index ? 'active' : ''}" onclick="loadSong(${index})">
             <img src="${song.thumbnail}" alt="${song.title}">
             <div class="song-info">
@@ -244,7 +232,7 @@ function displaySongs() {
                 <div class="song-artist">${song.artist}</div>
             </div>
         </div>
-    ).join('');
+    `).join('');
 }
 
 // Função para carregar música
@@ -342,8 +330,8 @@ function updateProgressBar() {
 
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return ${minutes}:${remainingSeconds.toString().padStart(2, '0')};
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
 function seekTo(event) {
@@ -356,6 +344,23 @@ function seekTo(event) {
 
     const newTime = (clickX / width) * duration;
     player.seekTo(newTime, true);
+}
+
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function seekTo(e) {
+    if (player && player.getDuration) {
+        const rect = progressBar.getBoundingClientRect();
+        const clickPosition = e.clientX - rect.left;
+        const progressWidth = rect.width;
+        const seekTime = (clickPosition / progressWidth) * player.getDuration();
+        player.seekTo(seekTime, true);
+    }
 }
 
 function playRandomSong() {
