@@ -126,7 +126,7 @@
     transition: all 0.3s ease;
     cursor: pointer;
     flex-direction: column;
-    border: 3px solid #4e54ff38;
+    border: 1px solid #167ac62e;
   }
   
   .song-item:hover {
