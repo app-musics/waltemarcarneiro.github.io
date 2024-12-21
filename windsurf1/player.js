@@ -1,30 +1,40 @@
 class MusicPlayer {
     constructor() {
         this.currentTrack = null;
+        this.audioPlayer = new Audio();
         this.isPlaying = false;
+        this.currentTime = 0;
+        this.duration = 0;
+        this.volume = 1;
         this.queue = [];
         this.currentIndex = -1;
         this.shuffle = false;
-        this.repeat = 'none'; // none, one, all
-        this.volume = 100;
-        this.audioElement = new Audio();
-        this.youtubePlayer = null;
-        this.currentSource = null; // 'local' ou 'youtube'
+        this.repeat = false;
+        this.favorites = new Set(JSON.parse(localStorage.getItem('favorites') || '[]'));
+        this.lastVolume = 1;
+
         this.setupEventListeners();
         this.setupYouTubePlayer();
     }
 
     setupEventListeners() {
-        // Controles principais
+        // Main controls
         document.getElementById('playPauseBtn').addEventListener('click', () => this.togglePlayPause());
         document.getElementById('prevBtn').addEventListener('click', () => this.playPrevious());
         document.getElementById('nextBtn').addEventListener('click', () => this.playNext());
         document.getElementById('shuffleBtn').addEventListener('click', () => this.toggleShuffle());
         document.getElementById('repeatBtn').addEventListener('click', () => this.toggleRepeat());
         
-        // Controle de volume
+        // Volume controls
+        const volumeBtn = document.getElementById('volumeBtn');
         const volumeControl = document.getElementById('volumeControl');
+        
+        volumeBtn.addEventListener('click', () => this.toggleMute());
         volumeControl.addEventListener('input', (e) => this.setVolume(e.target.value));
+        
+        // Additional controls
+        document.getElementById('shareBtn').addEventListener('click', () => this.shareTrack());
+        document.getElementById('favoriteBtn').addEventListener('click', () => this.toggleFavorite());
         
         // Progress bar
         const progressBar = document.querySelector('.progress-bar');
@@ -34,13 +44,13 @@ class MusicPlayer {
             this.seekTo(percent);
         });
 
-        // Upload de arquivos locais
+        // File upload
         document.getElementById('audioFileInput').addEventListener('change', (e) => this.handleLocalFiles(e.target.files));
 
-        // Eventos do áudio local
-        this.audioElement.addEventListener('timeupdate', () => this.updateProgress());
-        this.audioElement.addEventListener('ended', () => this.handleTrackEnd());
-        this.audioElement.addEventListener('loadedmetadata', () => this.updateDuration());
+        // Audio events
+        this.audioPlayer.addEventListener('timeupdate', () => this.updateProgress());
+        this.audioPlayer.addEventListener('loadedmetadata', () => this.updateDuration());
+        this.audioPlayer.addEventListener('ended', () => this.handleTrackEnd());
     }
 
     setupYouTubePlayer() {
@@ -134,10 +144,10 @@ class MusicPlayer {
 
         if (track.type === 'local') {
             this.youtubePlayer?.stopVideo();
-            this.audioElement.src = track.id;
-            this.audioElement.play();
+            this.audioPlayer.src = track.id;
+            this.audioPlayer.play();
         } else if (track.type === 'youtube' && this.youtubePlayer?.loadVideoById) {
-            this.audioElement.pause();
+            this.audioPlayer.pause();
             this.youtubePlayer.loadVideoById(track.id);
         }
 
@@ -148,9 +158,9 @@ class MusicPlayer {
     togglePlayPause() {
         if (this.currentSource === 'local') {
             if (this.isPlaying) {
-                this.audioElement.pause();
+                this.audioPlayer.pause();
             } else {
-                this.audioElement.play();
+                this.audioPlayer.play();
             }
         } else if (this.currentSource === 'youtube' && this.youtubePlayer) {
             if (this.isPlaying) {
@@ -176,28 +186,125 @@ class MusicPlayer {
     }
 
     updatePlayerUI() {
-        // Atualiza thumbnail
+        if (!this.currentTrack) return;
+
+        // Update thumbnail
         const thumbnail = document.getElementById('currentThumbnail');
         thumbnail.src = this.currentTrack.type === 'youtube' 
             ? `https://img.youtube.com/vi/${this.currentTrack.id}/hqdefault.jpg`
             : 'https://waltemar.com.br/youtube/placeholder.jpg';
 
-        // Atualiza informações da música
+        // Update track info
         document.getElementById('currentTitle').textContent = this.currentTrack.metadata?.title || 'Desconhecido';
         document.getElementById('currentArtist').textContent = this.currentTrack.metadata?.artist || '-';
 
-        // Atualiza botões de controle
+        // Update control buttons
         this.updatePlayPauseButton();
         document.getElementById('shuffleBtn').classList.toggle('active', this.shuffle);
+        document.getElementById('repeatBtn').classList.toggle('active', this.repeat);
         
-        const repeatBtn = document.getElementById('repeatBtn');
-        repeatBtn.classList.toggle('active', this.repeat !== 'none');
-        repeatBtn.setAttribute('data-repeat', this.repeat);
+        // Update favorite button
+        const favoriteBtn = document.getElementById('favoriteBtn');
+        const isFavorite = this.favorites.has(this.currentTrack.id);
+        favoriteBtn.innerHTML = `<ion-icon name="${isFavorite ? 'heart' : 'heart-outline'}"></ion-icon>`;
+        favoriteBtn.classList.toggle('active', isFavorite);
+    }
+
+    toggleFavorite() {
+        if (!this.currentTrack) return;
+
+        const trackId = this.currentTrack.id;
+        if (this.favorites.has(trackId)) {
+            this.favorites.delete(trackId);
+        } else {
+            this.favorites.add(trackId);
+        }
+
+        // Save to localStorage
+        localStorage.setItem('favorites', JSON.stringify([...this.favorites]));
+        
+        // Update UI
+        this.updatePlayerUI();
+        
+        // Show feedback
+        this.showToast(this.favorites.has(trackId) ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
+    }
+
+    async shareTrack() {
+        if (!this.currentTrack) return;
+
+        const shareData = {
+            title: this.currentTrack.metadata.title,
+            text: `Ouça ${this.currentTrack.metadata.title} por ${this.currentTrack.metadata.artist}`,
+            url: this.currentTrack.type === 'youtube' 
+                ? `https://youtu.be/${this.currentTrack.id}`
+                : window.location.href
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(shareData.url);
+                this.showToast('Link copiado para a área de transferência!');
+            }
+        } catch (error) {
+            console.error('Erro ao compartilhar:', error);
+            this.showToast('Erro ao compartilhar. Tente novamente.');
+        }
+    }
+
+    toggleMute() {
+        const volumeBtn = document.getElementById('volumeBtn');
+        const volumeControl = document.getElementById('volumeControl');
+        
+        if (this.volume > 0) {
+            this.lastVolume = this.volume;
+            this.setVolume(0);
+        } else {
+            this.setVolume(this.lastVolume * 100 || 100);
+        }
+    }
+
+    setVolume(value) {
+        this.volume = value / 100;
+        const volumeBtn = document.getElementById('volumeBtn');
+        const volumeControl = document.getElementById('volumeControl');
+
+        // Update audio players
+        this.audioPlayer.volume = this.volume;
+        if (this.youtubePlayer) {
+            this.youtubePlayer.setVolume(value);
+        }
+
+        // Update UI
+        volumeControl.value = value;
+        volumeBtn.innerHTML = `<ion-icon name="${
+            this.volume === 0 ? 'volume-mute-outline' :
+            this.volume < 0.5 ? 'volume-low-outline' :
+            'volume-high-outline'
+        }"></ion-icon>`;
+    }
+
+    showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 10);
+
+        // Remove after animation
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 
     updateProgress() {
-        const currentTime = this.currentSource === 'local' ? this.audioElement.currentTime : this.youtubePlayer?.getCurrentTime() || 0;
-        const duration = this.currentSource === 'local' ? this.audioElement.duration : this.youtubePlayer?.getDuration() || 0;
+        const currentTime = this.currentSource === 'local' ? this.audioPlayer.currentTime : this.youtubePlayer?.getCurrentTime() || 0;
+        const duration = this.currentSource === 'local' ? this.audioPlayer.duration : this.youtubePlayer?.getDuration() || 0;
         
         if (duration > 0) {
             const percent = (currentTime / duration) * 100;
@@ -215,29 +322,11 @@ class MusicPlayer {
 
     seekTo(percent) {
         if (this.currentSource === 'local') {
-            const duration = this.audioElement.duration;
-            this.audioElement.currentTime = duration * percent;
+            const duration = this.audioPlayer.duration;
+            this.audioPlayer.currentTime = duration * percent;
         } else if (this.currentSource === 'youtube' && this.youtubePlayer) {
             const duration = this.youtubePlayer.getDuration();
             this.youtubePlayer.seekTo(duration * percent, true);
-        }
-    }
-
-    setVolume(value) {
-        this.volume = value;
-        if (this.currentSource === 'local') {
-            this.audioElement.volume = value / 100;
-        } else if (this.currentSource === 'youtube' && this.youtubePlayer) {
-            this.youtubePlayer.setVolume(value);
-        }
-
-        const volumeBtn = document.getElementById('volumeBtn');
-        if (value == 0) {
-            volumeBtn.innerHTML = '<ion-icon name="volume-mute-outline"></ion-icon>';
-        } else if (value < 50) {
-            volumeBtn.innerHTML = '<ion-icon name="volume-low-outline"></ion-icon>';
-        } else {
-            volumeBtn.innerHTML = '<ion-icon name="volume-high-outline"></ion-icon>';
         }
     }
 
@@ -247,17 +336,13 @@ class MusicPlayer {
     }
 
     toggleRepeat() {
-        const states = ['none', 'one', 'all'];
-        const currentIndex = states.indexOf(this.repeat);
-        this.repeat = states[(currentIndex + 1) % states.length];
-        
+        this.repeat = !this.repeat;
         const repeatBtn = document.getElementById('repeatBtn');
-        repeatBtn.setAttribute('data-repeat', this.repeat);
-        repeatBtn.classList.toggle('active', this.repeat !== 'none');
+        repeatBtn.classList.toggle('active', this.repeat);
     }
 
     handleTrackEnd() {
-        if (this.repeat === 'one') {
+        if (this.repeat) {
             this.seekTo(0);
             this.togglePlayPause();
         } else {
@@ -291,3 +376,8 @@ class MusicPlayer {
         this.loadAndPlay(this.queue[this.currentIndex]);
     }
 }
+
+// Initialize player when document is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.player = new MusicPlayer();
+});
