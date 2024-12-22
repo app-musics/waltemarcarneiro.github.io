@@ -368,7 +368,7 @@ class MusicApp {
     async searchYouTube(query) {
         try {
             const response = await fetch(
-                `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&videoCategoryId=10&maxResults=20&key=AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY`
+                `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&videoCategoryId=10&maxResults=6&key=AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY`
             );
 
             if (!response.ok) {
