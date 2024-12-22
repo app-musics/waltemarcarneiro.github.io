@@ -12,19 +12,20 @@ class MusicPlayer {
 
     initializeElements() {
         this.elements = {
-            playPause: document.getElementById('play-pause'),
-            progressBar: document.getElementById('progress-bar'),
+            playPause: document.getElementById('playPauseBtn'),
+            progressBar: document.querySelector('#progress-bar .progress'),
             progressContainer: document.getElementById('progress-container'),
-            title: document.getElementById('title'),
-            artist: document.getElementById('artist'),
-            volume: document.getElementById('volume'),
-            volumeSlider: document.getElementById('volume-slider'),
-            currentTime: document.getElementById('current-time'),
+            title: document.getElementById('currentTitle'),
+            artist: document.getElementById('currentArtist'),
+            volume: document.getElementById('volumeBtn'),
+            volumeSlider: document.getElementById('volumeControl'),
+            currentTime: document.getElementById('currentTime'),
             duration: document.getElementById('duration'),
-            shuffleBtn: document.getElementById('shuffle'),
-            repeatBtn: document.getElementById('repeat'),
-            prevBtn: document.getElementById('prev'),
-            nextBtn: document.getElementById('next')
+            shuffleBtn: document.getElementById('shuffleBtn'),
+            repeatBtn: document.getElementById('repeatBtn'),
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            thumbnail: document.getElementById('currentThumbnail')
         };
     }
 
@@ -54,7 +55,11 @@ class MusicPlayer {
             width: '0',
             playerVars: {
                 'playsinline': 1,
-                'controls': 0
+                'controls': 0,
+                'disablekb': 1,
+                'fs': 0,
+                'modestbranding': 1,
+                'rel': 0
             },
             events: {
                 'onReady': this.onPlayerReady.bind(this),
@@ -66,7 +71,8 @@ class MusicPlayer {
 
     onPlayerReady(event) {
         console.log('YouTube player ready');
-        this.updateProgressBar();
+        // Set initial volume
+        event.target.setVolume(this.elements.volumeSlider.value);
     }
 
     onPlayerStateChange(event) {
@@ -74,21 +80,25 @@ class MusicPlayer {
             case YT.PlayerState.PLAYING:
                 this.isPlaying = true;
                 this.startProgressInterval();
+                this.updatePlayPauseButton();
                 break;
             case YT.PlayerState.PAUSED:
                 this.isPlaying = false;
                 this.clearProgressInterval();
+                this.updatePlayPauseButton();
                 break;
             case YT.PlayerState.ENDED:
+                this.isPlaying = false;
                 this.clearProgressInterval();
+                this.updatePlayPauseButton();
                 if (this.isRepeat) {
                     this.play();
                 } else {
-                    this.playNext();
+                    // Dispatch ended event for app.js to handle
+                    this.dispatchEvent('trackEnded');
                 }
                 break;
         }
-        this.updatePlayPauseButton();
     }
 
     onPlayerError(event) {
@@ -98,49 +108,40 @@ class MusicPlayer {
 
     async loadAndPlay(track) {
         try {
-            if (!track) {
-                throw new Error('No track provided');
+            if (!track || !track.videoId) {
+                throw new Error('Track inválida');
             }
 
-            console.log('Loading track:', track);
             this.currentTrack = track;
             
             // Update UI
-            if (this.elements.title) {
-                this.elements.title.textContent = track.metadata.title;
-            }
-            if (this.elements.artist) {
-                this.elements.artist.textContent = track.metadata.artist;
-            }
+            if (this.elements.title) this.elements.title.textContent = track.title;
+            if (this.elements.artist) this.elements.artist.textContent = track.artist || 'Desconhecido';
+            if (this.elements.thumbnail) this.elements.thumbnail.src = track.thumbnail || 'placeholder.jpg';
 
-            // Load and play YouTube video
-            if (track.type === 'youtube' && this.player && this.player.loadVideoById) {
-                console.log('Loading YouTube video:', track.id);
-                this.player.loadVideoById(track.id);
-                this.isPlaying = true;
-                this.updatePlayPauseButton();
-            }
-
+            // Load and play video
+            await this.player.loadVideoById(track.videoId);
+            this.play();
         } catch (error) {
             console.error('Error loading track:', error);
-            this.dispatchError(`Erro ao carregar música: ${error.message}`);
+            this.dispatchError('Erro ao carregar a música');
         }
     }
 
     play() {
-        if (this.player && this.player.playVideo) {
-            this.player.playVideo();
-            this.isPlaying = true;
-            this.updatePlayPauseButton();
-        }
+        if (!this.player || !this.player.playVideo) return;
+        this.player.playVideo();
+        this.isPlaying = true;
+        this.updatePlayPauseButton();
+        this.startProgressInterval();
     }
 
     pause() {
-        if (this.player && this.player.pauseVideo) {
-            this.player.pauseVideo();
-            this.isPlaying = false;
-            this.updatePlayPauseButton();
-        }
+        if (!this.player || !this.player.pauseVideo) return;
+        this.player.pauseVideo();
+        this.isPlaying = false;
+        this.updatePlayPauseButton();
+        this.clearProgressInterval();
     }
 
     togglePlay() {
@@ -203,10 +204,15 @@ class MusicPlayer {
     }
 
     updatePlayPauseButton() {
-        if (this.elements.playPause) {
-            this.elements.playPause.innerHTML = this.isPlaying ? 
-                '<ion-icon name="pause"></ion-icon>' : 
-                '<ion-icon name="play"></ion-icon>';
+        const playIcon = this.elements.playPause.querySelector('.play-icon');
+        const pauseIcon = this.elements.playPause.querySelector('.pause-icon');
+        
+        if (this.isPlaying) {
+            playIcon.classList.add('hidden');
+            pauseIcon.classList.remove('hidden');
+        } else {
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
         }
     }
 
@@ -214,6 +220,29 @@ class MusicPlayer {
         const event = new CustomEvent('playerError', { 
             detail: { message } 
         });
+        window.dispatchEvent(event);
+    }
+
+    setVolume(volume) {
+        if (!this.player || !this.player.setVolume) return;
+        this.volume = volume;
+        this.player.setVolume(volume * 100);
+    }
+
+    toggleShuffle() {
+        this.isShuffle = !this.isShuffle;
+        this.elements.shuffleBtn.classList.toggle('active', this.isShuffle);
+        this.dispatchEvent('shuffleChanged', { isShuffle: this.isShuffle });
+    }
+
+    toggleRepeat() {
+        this.isRepeat = !this.isRepeat;
+        this.elements.repeatBtn.classList.toggle('active', this.isRepeat);
+        this.dispatchEvent('repeatChanged', { isRepeat: this.isRepeat });
+    }
+
+    dispatchEvent(name, detail = {}) {
+        const event = new CustomEvent(name, { detail });
         window.dispatchEvent(event);
     }
 
