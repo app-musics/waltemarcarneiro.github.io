@@ -2,7 +2,7 @@
 class YouTubeService {
     constructor() {
         this.cache = new Map();
-        this.API_KEY = 'AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30';  // YouTube API Key
+        this.API_KEY = 'AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY';  // YouTube API Key
     }
 
     async getAuthToken() {
