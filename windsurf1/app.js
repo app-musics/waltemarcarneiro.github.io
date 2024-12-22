@@ -125,6 +125,29 @@ class MusicApp {
             // Simulação da API do YouTube enquanto não temos a chave
             const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&videoCategoryId=10&maxResults=6&key=AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY`);
             
+            if (!response.ok) {
+                // Enquanto não temos a chave da API, vamos simular alguns resultados
+                return [
+                    {
+                        id: 'JxPjA7nT4SE',
+                        type: 'youtube',
+                        metadata: {
+                            title: query + ' - Music Video',
+                            artist: 'Various Artists',
+                            thumbnail: 'https://i.ytimg.com/vi/JxPjA7nT4SE/hqdefault.jpg'
+                        }
+                    },
+                    {
+                        id: 'dQw4w9WgXcQ',
+                        type: 'youtube',
+                        metadata: {
+                            title: query + ' - Official Audio',
+                            artist: 'Top Artists',
+                            thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
+                        }
+                    }
+                    // Adicione mais resultados simulados aqui
+                ];
             }
 
             const data = await response.json();
