@@ -280,12 +280,8 @@ class MusicApp {
     }
 
     initializePlayer() {
-        this.player = new MusicPlayer();
-        
-        // Listen for player errors
-        document.addEventListener('playerError', (event) => {
-            this.showToast(event.detail.message);
-        });
+        // Use the global player instance
+        this.player = window.musicPlayer;
     }
 
     loadFavorites() {

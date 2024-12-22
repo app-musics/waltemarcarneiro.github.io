@@ -2,8 +2,12 @@ class MusicPlayer {
     constructor() {
         this.initializeElements();
         this.initializeState();
-        this.initializeYouTubePlayer();
         this.setupEventListeners();
+        
+        // Initialize YouTube player when API is ready
+        window.addEventListener('youtubeApiReady', () => {
+            this.initializeYouTubePlayer();
+        });
     }
 
     initializeElements() {
@@ -245,7 +249,7 @@ class MusicPlayer {
     }
 }
 
-// Initialize player when document is ready
+// Initialize player when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.player = new MusicPlayer();
+    window.musicPlayer = new MusicPlayer();
 });
