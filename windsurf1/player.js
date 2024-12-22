@@ -4,7 +4,6 @@ class MusicPlayer {
         this.initializeState();
         this.initializeAudio();
         this.setupEventListeners();
-        this.loadTheme();
     }
 
     initializeElements() {
@@ -17,7 +16,6 @@ class MusicPlayer {
             artist: document.getElementById('artist'),
             volume: document.getElementById('volume'),
             volumeSlider: document.getElementById('volume-slider'),
-            themeToggle: document.getElementById('theme-toggle'),
             currentTime: document.getElementById('current-time'),
             duration: document.getElementById('duration'),
             shuffleBtn: document.getElementById('shuffle'),
@@ -82,10 +80,6 @@ class MusicPlayer {
             this.elements.volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value / 100));
         }
 
-        if (this.elements.themeToggle) {
-            this.elements.themeToggle.addEventListener('click', () => this.toggleTheme());
-        }
-
         if (this.elements.shuffleBtn) {
             this.elements.shuffleBtn.addEventListener('click', () => this.toggleShuffle());
         }
@@ -133,6 +127,7 @@ class MusicPlayer {
                 throw new Error('No track provided');
             }
 
+            console.log('Loading track:', track);
             this.currentTrack = track;
             
             // Update UI
@@ -145,7 +140,27 @@ class MusicPlayer {
 
             // Set audio source based on track type
             if (track.type === 'youtube') {
-                await this.loadYouTubeAudio(track.id);
+                console.log('Track URL:', track.streamUrl);
+                if (!track.streamUrl) {
+                    throw new Error('Stream URL not found');
+                }
+
+                // Primeiro tenta obter a URL do stream
+                const response = await fetch(track.streamUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'audio/mp4,audio/*;q=0.9,*/*;q=0.8',
+                        'Range': 'bytes=0-',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao obter stream de áudio');
+                }
+
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                this.audio.src = audioUrl;
             } else {
                 this.audio.src = track.src;
             }
@@ -154,6 +169,7 @@ class MusicPlayer {
             this.updateMediaSessionMetadata(track);
 
             // Play the track
+            console.log('Attempting to play audio...');
             await this.play();
 
             // Add to history
@@ -161,28 +177,22 @@ class MusicPlayer {
 
         } catch (error) {
             console.error('Error loading track:', error);
-            this.showError('Erro ao carregar música');
-        }
-    }
-
-    async loadYouTubeAudio(videoId) {
-        try {
-            // Usando um serviço de streaming direto do YouTube
-            const audioUrl = `https://yt-stream.onrender.com/stream/${videoId}`;
-            this.audio.src = audioUrl;
-        } catch (error) {
-            console.error('Error loading YouTube audio:', error);
-            throw new Error('Não foi possível carregar o áudio do YouTube');
+            this.dispatchError(`Erro ao carregar música: ${error.message}`);
         }
     }
 
     async play() {
         try {
-            await this.audio.play();
-            this.updatePlayState(true);
+            console.log('Play called, current src:', this.audio.src);
+            const playPromise = this.audio.play();
+            if (playPromise !== undefined) {
+                await playPromise;
+                console.log('Audio playing successfully');
+                this.updatePlayState(true);
+            }
         } catch (error) {
             console.error('Error playing audio:', error);
-            this.showError('Erro ao reproduzir música');
+            throw error; // Propaga o erro para ser tratado em loadAndPlay
         }
     }
 
@@ -279,30 +289,6 @@ class MusicPlayer {
         this.elements.volume.innerHTML = `<ion-icon name="${iconName}"></ion-icon>`;
     }
 
-    toggleTheme() {
-        document.body.classList.toggle('dark-theme');
-        const theme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
-        localStorage.setItem('theme', theme);
-        
-        if (this.elements.themeToggle) {
-            this.elements.themeToggle.innerHTML = theme === 'dark'
-                ? '<ion-icon name="sunny-outline"></ion-icon>'
-                : '<ion-icon name="moon-outline"></ion-icon>';
-        }
-    }
-
-    loadTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-theme');
-            if (this.elements.themeToggle) {
-                this.elements.themeToggle.innerHTML = '<ion-icon name="sunny-outline"></ion-icon>';
-            }
-        } else if (this.elements.themeToggle) {
-            this.elements.themeToggle.innerHTML = '<ion-icon name="moon-outline"></ion-icon>';
-        }
-    }
-
     toggleShuffle() {
         this.shuffle = !this.shuffle;
         if (this.elements.shuffleBtn) {
@@ -366,17 +352,35 @@ class MusicPlayer {
     }
 
     handleAudioError(error) {
-        console.error('Audio error:', error);
-        this.showError('Erro ao reproduzir áudio');
+        console.error('Audio error event:', error);
+        let errorMessage = 'Erro desconhecido';
+
+        if (error.target.error) {
+            switch (error.target.error.code) {
+                case 1:
+                    errorMessage = 'Processo abortado';
+                    break;
+                case 2:
+                    errorMessage = 'Erro de rede';
+                    break;
+                case 3:
+                    errorMessage = 'Erro ao decodificar áudio';
+                    break;
+                case 4:
+                    errorMessage = 'Formato não suportado';
+                    break;
+            }
+        }
+
+        console.error('Error details:', errorMessage);
+        this.dispatchError(`Erro ao reproduzir áudio: ${errorMessage}`);
     }
 
-    showError(message) {
-        // Assuming we have a toast notification system
-        if (window.app && typeof window.app.showToast === 'function') {
-            window.app.showToast(message);
-        } else {
-            console.error(message);
-        }
+    dispatchError(message) {
+        const event = new CustomEvent('playerError', {
+            detail: { message }
+        });
+        document.dispatchEvent(event);
     }
 }
 
