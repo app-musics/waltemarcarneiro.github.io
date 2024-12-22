@@ -140,27 +140,40 @@ class MusicPlayer {
 
             // Set audio source based on track type
             if (track.type === 'youtube') {
-                console.log('Track URL:', track.streamUrl);
-                if (!track.streamUrl) {
-                    throw new Error('Stream URL not found');
-                }
-
-                // Primeiro tenta obter a URL do stream
-                const response = await fetch(track.streamUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'audio/mp4,audio/*;q=0.9,*/*;q=0.8',
-                        'Range': 'bytes=0-',
-                    }
-                });
-
+                console.log('Fetching stream info:', track.streamUrl);
+                
+                // Obtém informações do stream
+                const response = await fetch(track.streamUrl);
                 if (!response.ok) {
-                    throw new Error('Erro ao obter stream de áudio');
+                    throw new Error('Erro ao obter informações do stream');
                 }
 
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
-                this.audio.src = audioUrl;
+                const streamData = await response.json();
+                console.log('Stream data:', streamData);
+
+                // Tenta encontrar o melhor formato de áudio disponível
+                let audioStream = null;
+
+                // Primeiro tenta encontrar um formato de áudio puro (audio only)
+                audioStream = streamData.audioStreams?.find(stream => 
+                    (stream.mimeType.includes('audio/mp4') || 
+                     stream.mimeType.includes('audio/webm')) &&
+                    !stream.videoOnly
+                );
+
+                // Se não encontrar, tenta usar o stream de um formato misto
+                if (!audioStream && streamData.streams) {
+                    audioStream = streamData.streams.find(stream => 
+                        stream.hasAudio && !stream.videoOnly
+                    );
+                }
+
+                if (!audioStream) {
+                    throw new Error('Nenhum formato de áudio compatível encontrado');
+                }
+
+                console.log('Using audio stream:', audioStream);
+                this.audio.src = audioStream.url;
             } else {
                 this.audio.src = track.src;
             }
@@ -374,6 +387,12 @@ class MusicPlayer {
 
         console.error('Error details:', errorMessage);
         this.dispatchError(`Erro ao reproduzir áudio: ${errorMessage}`);
+
+        // Se for um erro de formato não suportado, tenta recarregar com outro formato
+        if (error.target.error?.code === 4 && this.currentTrack) {
+            console.log('Tentando recarregar com outro formato...');
+            this.loadAndPlay(this.currentTrack);
+        }
     }
 
     dispatchError(message) {

@@ -136,7 +136,8 @@ class MusicApp {
             return data.items.map(item => ({
                 id: item.id.videoId,
                 type: 'youtube',
-                streamUrl: `https://vid.puffyan.us/latest_version?id=${item.id.videoId}&itag=140`,
+                // Usando uma instância mais estável do Piped
+                streamUrl: `https://pipedapi-libre.kavin.rocks/streams/${item.id.videoId}`,
                 metadata: {
                     title: item.snippet.title,
                     artist: item.snippet.channelTitle,
