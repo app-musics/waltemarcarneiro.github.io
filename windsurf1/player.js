@@ -167,10 +167,9 @@ class MusicPlayer {
 
     async loadYouTubeAudio(videoId) {
         try {
-            const response = await fetch(`/api/youtube/audio/${videoId}`);
-            if (!response.ok) throw new Error('Failed to get audio URL');
-            const data = await response.json();
-            this.audio.src = data.url;
+            // Usando um serviço de streaming direto do YouTube
+            const audioUrl = `https://yt-stream.onrender.com/stream/${videoId}`;
+            this.audio.src = audioUrl;
         } catch (error) {
             console.error('Error loading YouTube audio:', error);
             throw new Error('Não foi possível carregar o áudio do YouTube');
