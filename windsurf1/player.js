@@ -2,12 +2,11 @@ class MusicPlayer {
     constructor() {
         this.initializeElements();
         this.initializeState();
-        this.initializeAudio();
+        this.initializeYouTubePlayer();
         this.setupEventListeners();
     }
 
     initializeElements() {
-        // Player controls
         this.elements = {
             playPause: document.getElementById('play-pause'),
             progressBar: document.getElementById('progress-bar'),
@@ -23,57 +22,205 @@ class MusicPlayer {
             prevBtn: document.getElementById('prev'),
             nextBtn: document.getElementById('next')
         };
+    }
 
-        // Validate required elements
-        Object.entries(this.elements).forEach(([key, element]) => {
-            if (!element) {
-                console.error(`Required element not found: ${key}`);
+    initializeState() {
+        this.currentTrack = null;
+        this.isPlaying = false;
+        this.isShuffle = false;
+        this.isRepeat = false;
+        this.volume = 1;
+        this.progressInterval = null;
+    }
+
+    initializeYouTubePlayer() {
+        // Criar o player do YouTube quando a API estiver pronta
+        if (window.YT) {
+            this.createYouTubePlayer();
+        } else {
+            window.onYouTubeIframeAPIReady = () => {
+                this.createYouTubePlayer();
+            };
+        }
+    }
+
+    createYouTubePlayer() {
+        this.player = new YT.Player('youtube-player', {
+            height: '0',
+            width: '0',
+            playerVars: {
+                'playsinline': 1,
+                'controls': 0
+            },
+            events: {
+                'onReady': this.onPlayerReady.bind(this),
+                'onStateChange': this.onPlayerStateChange.bind(this),
+                'onError': this.onPlayerError.bind(this)
             }
         });
     }
 
-    initializeState() {
-        this.isPlaying = false;
-        this.currentTrackIndex = 0;
-        this.currentTrack = null;
-        this.shuffle = false;
-        this.repeat = 'none'; // none, one, all
-        this.volume = parseFloat(localStorage.getItem('volume')) || 1;
-        this.playQueue = [];
-        this.playHistory = [];
+    onPlayerReady(event) {
+        console.log('YouTube player ready');
+        this.updateProgressBar();
     }
 
-    initializeAudio() {
-        this.audio = new Audio();
-        this.audio.volume = this.volume;
-
-        // Update volume UI
-        if (this.elements.volumeSlider) {
-            this.elements.volumeSlider.value = this.volume * 100;
+    onPlayerStateChange(event) {
+        switch(event.data) {
+            case YT.PlayerState.PLAYING:
+                this.isPlaying = true;
+                this.startProgressInterval();
+                break;
+            case YT.PlayerState.PAUSED:
+                this.isPlaying = false;
+                this.clearProgressInterval();
+                break;
+            case YT.PlayerState.ENDED:
+                this.clearProgressInterval();
+                if (this.isRepeat) {
+                    this.play();
+                } else {
+                    this.playNext();
+                }
+                break;
         }
-        this.updateVolumeIcon();
+        this.updatePlayPauseButton();
+    }
+
+    onPlayerError(event) {
+        console.error('YouTube player error:', event);
+        this.dispatchError('Erro ao reproduzir o vídeo');
+    }
+
+    async loadAndPlay(track) {
+        try {
+            if (!track) {
+                throw new Error('No track provided');
+            }
+
+            console.log('Loading track:', track);
+            this.currentTrack = track;
+            
+            // Update UI
+            if (this.elements.title) {
+                this.elements.title.textContent = track.metadata.title;
+            }
+            if (this.elements.artist) {
+                this.elements.artist.textContent = track.metadata.artist;
+            }
+
+            // Load and play YouTube video
+            if (track.type === 'youtube' && this.player && this.player.loadVideoById) {
+                console.log('Loading YouTube video:', track.id);
+                this.player.loadVideoById(track.id);
+                this.isPlaying = true;
+                this.updatePlayPauseButton();
+            }
+
+        } catch (error) {
+            console.error('Error loading track:', error);
+            this.dispatchError(`Erro ao carregar música: ${error.message}`);
+        }
+    }
+
+    play() {
+        if (this.player && this.player.playVideo) {
+            this.player.playVideo();
+            this.isPlaying = true;
+            this.updatePlayPauseButton();
+        }
+    }
+
+    pause() {
+        if (this.player && this.player.pauseVideo) {
+            this.player.pauseVideo();
+            this.isPlaying = false;
+            this.updatePlayPauseButton();
+        }
+    }
+
+    togglePlay() {
+        if (this.isPlaying) {
+            this.pause();
+        } else {
+            this.play();
+        }
+    }
+
+    startProgressInterval() {
+        this.clearProgressInterval();
+        this.progressInterval = setInterval(() => this.updateProgressBar(), 1000);
+    }
+
+    clearProgressInterval() {
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
+            this.progressInterval = null;
+        }
+    }
+
+    updateProgressBar() {
+        if (!this.player || !this.player.getCurrentTime || !this.player.getDuration) return;
+
+        const currentTime = this.player.getCurrentTime();
+        const duration = this.player.getDuration();
+
+        if (duration > 0) {
+            const progress = (currentTime / duration) * 100;
+            if (this.elements.progressBar) {
+                this.elements.progressBar.style.width = `${progress}%`;
+            }
+        }
+
+        if (this.elements.currentTime) {
+            this.elements.currentTime.textContent = this.formatTime(currentTime);
+        }
+        if (this.elements.duration) {
+            this.elements.duration.textContent = this.formatTime(duration);
+        }
+    }
+
+    formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    seekTo(event) {
+        if (!this.player || !this.player.seekTo || !this.player.getDuration) return;
+
+        const rect = this.elements.progressContainer.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const containerWidth = rect.width;
+        const duration = this.player.getDuration();
+        
+        const seekTime = (clickX / containerWidth) * duration;
+        this.player.seekTo(seekTime, true);
+    }
+
+    updatePlayPauseButton() {
+        if (this.elements.playPause) {
+            this.elements.playPause.innerHTML = this.isPlaying ? 
+                '<ion-icon name="pause"></ion-icon>' : 
+                '<ion-icon name="play"></ion-icon>';
+        }
+    }
+
+    dispatchError(message) {
+        const event = new CustomEvent('playerError', { 
+            detail: { message } 
+        });
+        window.dispatchEvent(event);
     }
 
     setupEventListeners() {
-        // Audio events
-        this.audio.addEventListener('timeupdate', () => this.updateProgress());
-        this.audio.addEventListener('ended', () => this.handleTrackEnd());
-        this.audio.addEventListener('error', (e) => this.handleAudioError(e));
-        this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
-        this.audio.addEventListener('playing', () => this.updatePlayState(true));
-        this.audio.addEventListener('pause', () => this.updatePlayState(false));
-
-        // Control events
+        // Player controls
         if (this.elements.playPause) {
-            this.elements.playPause.addEventListener('click', () => this.togglePlayPause());
+            this.elements.playPause.addEventListener('click', () => this.togglePlay());
         }
 
         if (this.elements.progressContainer) {
-            this.elements.progressContainer.addEventListener('click', (e) => this.setProgress(e));
-        }
-
-        if (this.elements.volume) {
-            this.elements.volume.addEventListener('click', () => this.toggleMute());
+            this.elements.progressContainer.addEventListener('click', (e) => this.seekTo(e));
         }
 
         if (this.elements.volumeSlider) {
@@ -95,311 +242,6 @@ class MusicPlayer {
         if (this.elements.nextBtn) {
             this.elements.nextBtn.addEventListener('click', () => this.playNext());
         }
-
-        // Media Session API
-        if ('mediaSession' in navigator) {
-            this.setupMediaSession();
-        }
-    }
-
-    setupMediaSession() {
-        navigator.mediaSession.setActionHandler('play', () => this.play());
-        navigator.mediaSession.setActionHandler('pause', () => this.pause());
-        navigator.mediaSession.setActionHandler('previoustrack', () => this.playPrevious());
-        navigator.mediaSession.setActionHandler('nexttrack', () => this.playNext());
-    }
-
-    updateMediaSessionMetadata(track) {
-        if ('mediaSession' in navigator && track) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: track.metadata.title,
-                artist: track.metadata.artist,
-                artwork: [
-                    { src: track.metadata.thumbnail, sizes: '512x512', type: 'image/jpeg' }
-                ]
-            });
-        }
-    }
-
-    async loadAndPlay(track) {
-        try {
-            if (!track) {
-                throw new Error('No track provided');
-            }
-
-            console.log('Loading track:', track);
-            this.currentTrack = track;
-            
-            // Update UI
-            if (this.elements.title) {
-                this.elements.title.textContent = track.metadata.title;
-            }
-            if (this.elements.artist) {
-                this.elements.artist.textContent = track.metadata.artist;
-            }
-
-            // Set audio source based on track type
-            if (track.type === 'youtube') {
-                console.log('Fetching stream info:', track.streamUrl);
-                
-                // Obtém informações do stream
-                const response = await fetch(track.streamUrl);
-                if (!response.ok) {
-                    throw new Error('Erro ao obter informações do stream');
-                }
-
-                const streamData = await response.json();
-                console.log('Stream data:', streamData);
-
-                // Tenta encontrar o melhor formato de áudio disponível
-                let audioStream = null;
-
-                // Primeiro tenta encontrar um formato de áudio puro (audio only)
-                audioStream = streamData.audioStreams?.find(stream => 
-                    (stream.mimeType.includes('audio/mp4') || 
-                     stream.mimeType.includes('audio/webm')) &&
-                    !stream.videoOnly
-                );
-
-                // Se não encontrar, tenta usar o stream de um formato misto
-                if (!audioStream && streamData.streams) {
-                    audioStream = streamData.streams.find(stream => 
-                        stream.hasAudio && !stream.videoOnly
-                    );
-                }
-
-                if (!audioStream) {
-                    throw new Error('Nenhum formato de áudio compatível encontrado');
-                }
-
-                console.log('Using audio stream:', audioStream);
-                this.audio.src = audioStream.url;
-            } else {
-                this.audio.src = track.src;
-            }
-
-            // Update media session
-            this.updateMediaSessionMetadata(track);
-
-            // Play the track
-            console.log('Attempting to play audio...');
-            await this.play();
-
-            // Add to history
-            this.addToHistory(track);
-
-        } catch (error) {
-            console.error('Error loading track:', error);
-            this.dispatchError(`Erro ao carregar música: ${error.message}`);
-        }
-    }
-
-    async play() {
-        try {
-            console.log('Play called, current src:', this.audio.src);
-            const playPromise = this.audio.play();
-            if (playPromise !== undefined) {
-                await playPromise;
-                console.log('Audio playing successfully');
-                this.updatePlayState(true);
-            }
-        } catch (error) {
-            console.error('Error playing audio:', error);
-            throw error; // Propaga o erro para ser tratado em loadAndPlay
-        }
-    }
-
-    pause() {
-        this.audio.pause();
-        this.updatePlayState(false);
-    }
-
-    togglePlayPause() {
-        if (this.isPlaying) {
-            this.pause();
-        } else {
-            this.play();
-        }
-    }
-
-    updatePlayState(isPlaying) {
-        this.isPlaying = isPlaying;
-        if (this.elements.playPause) {
-            this.elements.playPause.innerHTML = isPlaying
-                ? '<ion-icon name="pause-outline"></ion-icon>'
-                : '<ion-icon name="play-outline"></ion-icon>';
-        }
-    }
-
-    updateProgress() {
-        if (!this.audio.duration) return;
-
-        const currentTime = this.audio.currentTime;
-        const duration = this.audio.duration;
-        const progressPercent = (currentTime / duration) * 100;
-
-        if (this.elements.progressBar) {
-            this.elements.progressBar.style.width = `${progressPercent}%`;
-        }
-
-        if (this.elements.currentTime) {
-            this.elements.currentTime.textContent = this.formatTime(currentTime);
-        }
-    }
-
-    updateDuration() {
-        if (this.elements.duration) {
-            this.elements.duration.textContent = this.formatTime(this.audio.duration);
-        }
-    }
-
-    formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = Math.floor(seconds % 60);
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-
-    setProgress(e) {
-        const width = this.elements.progressContainer.clientWidth;
-        const clickX = e.offsetX;
-        const duration = this.audio.duration;
-        
-        if (duration) {
-            this.audio.currentTime = (clickX / width) * duration;
-        }
-    }
-
-    setVolume(value) {
-        this.volume = Math.max(0, Math.min(1, value));
-        this.audio.volume = this.volume;
-        localStorage.setItem('volume', this.volume.toString());
-        this.updateVolumeIcon();
-    }
-
-    toggleMute() {
-        if (this.audio.volume > 0) {
-            this.lastVolume = this.audio.volume;
-            this.setVolume(0);
-        } else {
-            this.setVolume(this.lastVolume || 1);
-        }
-    }
-
-    updateVolumeIcon() {
-        if (!this.elements.volume) return;
-
-        let iconName;
-        if (this.volume === 0) {
-            iconName = 'volume-mute-outline';
-        } else if (this.volume < 0.3) {
-            iconName = 'volume-low-outline';
-        } else if (this.volume < 0.7) {
-            iconName = 'volume-medium-outline';
-        } else {
-            iconName = 'volume-high-outline';
-        }
-
-        this.elements.volume.innerHTML = `<ion-icon name="${iconName}"></ion-icon>`;
-    }
-
-    toggleShuffle() {
-        this.shuffle = !this.shuffle;
-        if (this.elements.shuffleBtn) {
-            this.elements.shuffleBtn.classList.toggle('active', this.shuffle);
-        }
-    }
-
-    toggleRepeat() {
-        const modes = ['none', 'one', 'all'];
-        const currentIndex = modes.indexOf(this.repeat);
-        this.repeat = modes[(currentIndex + 1) % modes.length];
-
-        if (this.elements.repeatBtn) {
-            this.elements.repeatBtn.classList.toggle('active', this.repeat !== 'none');
-            // Update icon based on repeat mode
-            const icon = this.repeat === 'one' ? 'repeat-one-outline' : 'repeat-outline';
-            this.elements.repeatBtn.innerHTML = `<ion-icon name="${icon}"></ion-icon>`;
-        }
-    }
-
-    handleTrackEnd() {
-        if (this.repeat === 'one') {
-            this.audio.currentTime = 0;
-            this.play();
-        } else {
-            this.playNext();
-        }
-    }
-
-    playNext() {
-        if (this.playQueue.length > 0) {
-            const nextTrack = this.playQueue.shift();
-            this.loadAndPlay(nextTrack);
-        }
-    }
-
-    playPrevious() {
-        if (this.playHistory.length > 1) {
-            // Remove current track from history
-            this.playHistory.pop();
-            // Get previous track
-            const previousTrack = this.playHistory.pop();
-            this.loadAndPlay(previousTrack);
-        }
-    }
-
-    addToHistory(track) {
-        this.playHistory.push(track);
-        // Keep only last 50 tracks in history
-        if (this.playHistory.length > 50) {
-            this.playHistory.shift();
-        }
-    }
-
-    addToQueue(track) {
-        this.playQueue.push(track);
-    }
-
-    clearQueue() {
-        this.playQueue = [];
-    }
-
-    handleAudioError(error) {
-        console.error('Audio error event:', error);
-        let errorMessage = 'Erro desconhecido';
-
-        if (error.target.error) {
-            switch (error.target.error.code) {
-                case 1:
-                    errorMessage = 'Processo abortado';
-                    break;
-                case 2:
-                    errorMessage = 'Erro de rede';
-                    break;
-                case 3:
-                    errorMessage = 'Erro ao decodificar áudio';
-                    break;
-                case 4:
-                    errorMessage = 'Formato não suportado';
-                    break;
-            }
-        }
-
-        console.error('Error details:', errorMessage);
-        this.dispatchError(`Erro ao reproduzir áudio: ${errorMessage}`);
-
-        // Se for um erro de formato não suportado, tenta recarregar com outro formato
-        if (error.target.error?.code === 4 && this.currentTrack) {
-            console.log('Tentando recarregar com outro formato...');
-            this.loadAndPlay(this.currentTrack);
-        }
-    }
-
-    dispatchError(message) {
-        const event = new CustomEvent('playerError', {
-            detail: { message }
-        });
-        document.dispatchEvent(event);
     }
 }
 
