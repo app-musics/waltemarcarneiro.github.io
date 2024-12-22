@@ -20,7 +20,7 @@ class YouTubeService {
     async search(query, maxResults = 20) {
         try {
             const response = await fetch(
-                `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&videoCategoryId=10&maxResults=${maxResults}&key=${this.API_KEY}`
+                `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&videoCategoryId=6&maxResults=${maxResults}&key=${this.API_KEY}`
             );
 
             if (!response.ok) {
