@@ -3,11 +3,7 @@ class MusicPlayer {
         this.initializeElements();
         this.initializeState();
         this.setupEventListeners();
-        
-        // Initialize YouTube player when API is ready
-        window.addEventListener('youtubeApiReady', () => {
-            this.initializeYouTubePlayer();
-        });
+        this.loadYouTubeAPI();
     }
 
     initializeElements() {
@@ -39,7 +35,6 @@ class MusicPlayer {
     }
 
     initializeYouTubePlayer() {
-        // Criar o player do YouTube quando a API estiver pronta
         if (window.YT) {
             this.createYouTubePlayer();
         } else {
@@ -50,6 +45,12 @@ class MusicPlayer {
     }
 
     createYouTubePlayer() {
+        if (!document.getElementById('youtube-player')) {
+            const playerDiv = document.createElement('div');
+            playerDiv.id = 'youtube-player';
+            document.body.appendChild(playerDiv);
+        }
+
         this.player = new YT.Player('youtube-player', {
             height: '0',
             width: '0',
@@ -59,7 +60,8 @@ class MusicPlayer {
                 'disablekb': 1,
                 'fs': 0,
                 'modestbranding': 1,
-                'rel': 0
+                'rel': 0,
+                'enablejsapi': 1
             },
             events: {
                 'onReady': this.onPlayerReady.bind(this),
@@ -70,13 +72,12 @@ class MusicPlayer {
     }
 
     onPlayerReady(event) {
-        console.log('YouTube player ready');
-        // Set initial volume
+        console.log('YouTube player ready', event);
         event.target.setVolume(this.elements.volumeSlider.value);
     }
 
     onPlayerStateChange(event) {
-        switch(event.data) {
+        switch (event.data) {
             case YT.PlayerState.PLAYING:
                 this.isPlaying = true;
                 this.startProgressInterval();
@@ -102,25 +103,37 @@ class MusicPlayer {
     }
 
     onPlayerError(event) {
-        console.error('YouTube player error:', event);
+        console.error('YouTube player error:', event.data);
+        // Códigos de erro comuns:
+        // 2 - O parâmetro do ID do vídeo é inválido
+        // 5 - O conteúdo não pode ser reproduzido em um player HTML5
+        // 100 - O vídeo solicitado não foi encontrado
+        // 101/150 - O proprietário do vídeo não permite que ele seja reproduzido em players incorporados
         this.dispatchError('Erro ao reproduzir o vídeo');
     }
 
     async loadAndPlay(track) {
         try {
-            if (!track || !track.videoId) {
+            const videoId = track.id || track.videoId;
+            if (!videoId) {
                 throw new Error('Track inválida');
             }
 
             this.currentTrack = track;
-            
+
             // Update UI
-            if (this.elements.title) this.elements.title.textContent = track.title;
-            if (this.elements.artist) this.elements.artist.textContent = track.artist || 'Desconhecido';
-            if (this.elements.thumbnail) this.elements.thumbnail.src = track.thumbnail || 'placeholder.jpg';
+            if (this.elements.title) {
+                this.elements.title.textContent = track.metadata?.title || track.title;
+            }
+            if (this.elements.artist) {
+                this.elements.artist.textContent = track.metadata?.artist || track.artist || 'Desconhecido';
+            }
+            if (this.elements.thumbnail) {
+                this.elements.thumbnail.src = track.metadata?.thumbnail || track.thumbnail || 'placeholder.jpg';
+            }
 
             // Load and play video
-            await this.player.loadVideoById(track.videoId);
+            await this.player.loadVideoById(videoId);
             this.play();
         } catch (error) {
             console.error('Error loading track:', error);
@@ -129,7 +142,10 @@ class MusicPlayer {
     }
 
     play() {
-        if (!this.player || !this.player.playVideo) return;
+        if (!this.isPlayerReady()) {
+            console.warn('Player não está pronto ainda');
+            return;
+        }
         this.player.playVideo();
         this.isPlaying = true;
         this.updatePlayPauseButton();
@@ -198,7 +214,7 @@ class MusicPlayer {
         const clickX = event.clientX - rect.left;
         const containerWidth = rect.width;
         const duration = this.player.getDuration();
-        
+
         const seekTime = (clickX / containerWidth) * duration;
         this.player.seekTo(seekTime, true);
     }
@@ -206,7 +222,7 @@ class MusicPlayer {
     updatePlayPauseButton() {
         const playIcon = this.elements.playPause.querySelector('.play-icon');
         const pauseIcon = this.elements.playPause.querySelector('.pause-icon');
-        
+
         if (this.isPlaying) {
             playIcon.classList.add('hidden');
             pauseIcon.classList.remove('hidden');
@@ -217,12 +233,11 @@ class MusicPlayer {
     }
 
     dispatchError(message) {
-        const event = new CustomEvent('playerError', { 
-            detail: { message } 
+        const event = new CustomEvent('playerError', {
+            detail: { message }
         });
         window.dispatchEvent(event);
     }
-
     setVolume(volume) {
         if (!this.player || !this.player.setVolume) return;
         this.volume = volume;
@@ -276,9 +291,40 @@ class MusicPlayer {
             this.elements.nextBtn.addEventListener('click', () => this.playNext());
         }
     }
+
+    isPlayerReady() {
+        return this.player && this.player.playVideo;
+    }
+
+    playPrevious() {
+        this.dispatchEvent('previousTrackRequested');
+    }
+
+    playNext() {
+        if (this.isRepeat) {
+            // Se repeat estiver ativo, apenas reinicia a música atual
+            this.player.seekTo(0);
+            this.play();
+        } else {
+            // Dispara evento para que app.js possa lidar com a próxima música
+            this.dispatchEvent('nextTrackRequested');
+        }
+    }
+
+    loadYouTubeAPI() {
+        if (window.YT) {
+            this.initializeYouTubePlayer();
+            return;
+        }
+
+        window.onYouTubeIframeAPIReady = () => {
+            this.initializeYouTubePlayer();
+        };
+    }
 }
 
 // Initialize player when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.musicPlayer = new MusicPlayer();
 });
+

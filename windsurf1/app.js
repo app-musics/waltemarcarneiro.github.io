@@ -5,10 +5,10 @@ class MusicApp {
         this.favorites = new Set();
         this.localTracks = new Map();
         this.API_KEY = 'AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY';
-        
+
         this.setupEventListeners();
         this.loadFavorites();
-        this.setupServiceWorker();
+        //this.setupServiceWorker();
         this.initializePlayer();
         this.setupTabNavigation();
     }
@@ -127,7 +127,7 @@ class MusicApp {
             const response = await fetch(
                 `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&videoCategoryId=10&maxResults=6&key=${this.API_KEY}`
             );
-            
+
             if (!response.ok) {
                 throw new Error('Erro na API do YouTube');
             }
@@ -172,9 +172,9 @@ class MusicApp {
     createMusicCard(track, container) {
         const card = document.createElement('div');
         card.className = 'music-card fade-in';
-        
+
         const isFavorite = this.favorites.has(track.id);
-        
+
         card.innerHTML = `
             <div class="card-thumbnail">
                 <img src="${track.metadata.thumbnail}" alt="${track.metadata.title}" 
@@ -268,7 +268,7 @@ class MusicApp {
 
         // Força um reflow para garantir que a animação funcione
         toast.offsetHeight;
-        
+
         // Adiciona a classe para mostrar o toast
         toast.classList.add('fade-in');
 
@@ -294,7 +294,8 @@ class MusicApp {
     saveFavorites() {
         localStorage.setItem('favorites', JSON.stringify([...this.favorites]));
     }
-
+//SERVICE WORKER
+    /*
     async setupServiceWorker() {
         if ('serviceWorker' in navigator) {
             try {
@@ -304,7 +305,7 @@ class MusicApp {
                 console.error('Erro ao registrar Service Worker:', error);
             }
         }
-    }
+    }*/
 }
 
 // Initialize app when document is ready

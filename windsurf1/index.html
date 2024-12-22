@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music - Sua Música em Todo Lugar</title>
-    <link rel="manifest" href="manifest.json">
+    <!--<link rel="manifest" href="manifest.json">-->
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
@@ -166,25 +166,16 @@
     <div id="youtube-player" style="position: absolute; left: -9999px;"></div>
 
     <!-- Load YouTube IFrame API -->
-    <script>
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        function onYouTubeIframeAPIReady() {
-            window.dispatchEvent(new Event('youtubeApiReady'));
-        }
-    </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
+    <!--<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>-->
+    <!--<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>-->
     
     <!-- Application Scripts -->
-    <script src="firebase-config.js"></script>
+    <!--<script src="firebase-config.js"></script>-->
     <script src="app.js"></script>
-    <script src="auth.js"></script>
+    <!--<script src="auth.js"></script>-->
     <script src="player.js"></script>
 
     <!-- Auth Modal -->
@@ -217,5 +208,7 @@
             </div>
         </div>
     </div>
+<!-- Adicione isso em algum lugar do seu HTML -->
+<div id="youtube-player"></div>
 </body>
 </html>
