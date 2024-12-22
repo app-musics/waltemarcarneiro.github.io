@@ -4,6 +4,9 @@ class MusicApp {
         this.player = null;
         this.favorites = new Set();
         this.localTracks = new Map();
+        this.youtubeCache = new Map();
+        this.API_KEY = 'AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY';
+        
         this.setupEventListeners();
         this.loadFavorites();
         this.setupServiceWorker();
@@ -40,7 +43,6 @@ class MusicApp {
 
         switch (tabName) {
             case 'search':
-                // Mantém o container vazio até uma busca ser realizada
                 break;
             case 'local':
                 this.displayLocalTracks();
@@ -71,7 +73,7 @@ class MusicApp {
         });
     }
 
-    displayFavorites() {
+    async displayFavorites() {
         const resultsContainer = document.getElementById('resultsContainer');
         resultsContainer.innerHTML = '';
 
@@ -86,12 +88,45 @@ class MusicApp {
             return;
         }
 
-        this.favorites.forEach(trackId => {
-            const track = this.localTracks.get(trackId) || this.getYouTubeTrack(trackId);
+        const favoriteTracks = [];
+        for (const trackId of this.favorites) {
+            const track = this.localTracks.get(trackId) || await this.getYouTubeTrack(trackId);
             if (track) {
-                this.createMusicCard(track, resultsContainer);
+                favoriteTracks.push(track);
             }
+        }
+
+        favoriteTracks.forEach(track => {
+            this.createMusicCard(track, resultsContainer);
         });
+    }
+
+    async getYouTubeTrack(videoId) {
+        if (this.youtubeCache.has(videoId)) {
+            return this.youtubeCache.get(videoId);
+        }
+
+        try {
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${this.API_KEY}`);
+            const data = await response.json();
+
+            if (data.items && data.items[0]) {
+                const track = {
+                    id: videoId,
+                    type: 'youtube',
+                    metadata: {
+                        title: data.items[0].snippet.title,
+                        artist: data.items[0].snippet.channelTitle,
+                        thumbnail: data.items[0].snippet.thumbnails.high.url
+                    }
+                };
+                this.youtubeCache.set(videoId, track);
+                return track;
+            }
+        } catch (error) {
+            console.error('Error fetching YouTube track:', error);
+        }
+        return null;
     }
 
     async performSearch(query) {
@@ -114,7 +149,7 @@ class MusicApp {
                 <div class="error-state">
                     <ion-icon name="alert-circle-outline"></ion-icon>
                     <h3>Erro ao buscar músicas</h3>
-                    <p>Tente novamente mais tarde</p>
+                    <p>${error.message}</p>
                 </div>
             `;
         }
@@ -122,36 +157,19 @@ class MusicApp {
 
     async searchYouTube(query) {
         try {
-            // Simulação da API do YouTube enquanto não temos a chave
-            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&videoCategoryId=10&maxResults=20&key=AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY`);
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&videoCategoryId=10&maxResults=20&key=${this.API_KEY}`);
             
             if (!response.ok) {
-                // Enquanto não temos a chave da API, vamos simular alguns resultados
-                return [
-                    {
-                        id: 'JxPjA7nT4SE',
-                        type: 'youtube',
-                        metadata: {
-                            title: query + ' - Music Video',
-                            artist: 'Various Artists',
-                            thumbnail: 'https://i.ytimg.com/vi/JxPjA7nT4SE/hqdefault.jpg'
-                        }
-                    },
-                    {
-                        id: 'dQw4w9WgXcQ',
-                        type: 'youtube',
-                        metadata: {
-                            title: query + ' - Official Audio',
-                            artist: 'Top Artists',
-                            thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
-                        }
-                    }
-                    // Adicione mais resultados simulados aqui
-                ];
+                throw new Error('Erro ao conectar com a API do YouTube');
             }
 
             const data = await response.json();
-            return data.items.map(item => ({
+            
+            if (!data.items || data.items.length === 0) {
+                return [];
+            }
+
+            const tracks = data.items.map(item => ({
                 id: item.id.videoId,
                 type: 'youtube',
                 metadata: {
@@ -160,29 +178,16 @@ class MusicApp {
                     thumbnail: item.snippet.thumbnails.high.url
                 }
             }));
+
+            // Cache the results
+            tracks.forEach(track => {
+                this.youtubeCache.set(track.id, track);
+            });
+
+            return tracks;
         } catch (error) {
             console.error('Erro na busca:', error);
-            // Em caso de erro, retorna resultados simulados
-            return [
-                {
-                    id: 'JxPjA7nT4SE',
-                    type: 'youtube',
-                    metadata: {
-                        title: query + ' - Music Video',
-                        artist: 'Various Artists',
-                        thumbnail: 'https://i.ytimg.com/vi/JxPjA7nT4SE/hqdefault.jpg'
-                    }
-                },
-                {
-                    id: 'dQw4w9WgXcQ',
-                    type: 'youtube',
-                    metadata: {
-                        title: query + ' - Official Audio',
-                        artist: 'Top Artists',
-                        thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
-                    }
-                }
-            ];
+            throw new Error('Não foi possível realizar a busca. Tente novamente mais tarde.');
         }
     }
 
@@ -214,7 +219,7 @@ class MusicApp {
         
         card.innerHTML = `
             <div class="card-thumbnail">
-                <img src="${track.type === 'youtube' ? track.metadata.thumbnail : 'https://waltemar.com.br/youtube/placeholder.jpg'}" alt="${track.metadata.title}">
+                <img src="${track.metadata.thumbnail}" alt="${track.metadata.title}">
                 <button class="play-overlay">
                     <ion-icon name="play-circle-outline"></ion-icon>
                 </button>
@@ -242,7 +247,11 @@ class MusicApp {
         card.querySelector('.favorite-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             this.toggleFavorite(track);
-            this.updateFavoriteButton(e.currentTarget, track.id);
+            const btn = e.currentTarget;
+            const isNowFavorite = this.favorites.has(track.id);
+            btn.innerHTML = `<ion-icon name="${isNowFavorite ? 'heart' : 'heart-outline'}"></ion-icon>`;
+            btn.classList.toggle('active', isNowFavorite);
+            btn.title = isNowFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
         });
 
         card.querySelector('.share-btn').addEventListener('click', (e) => {
@@ -251,13 +260,6 @@ class MusicApp {
         });
 
         container.appendChild(card);
-    }
-
-    updateFavoriteButton(button, trackId) {
-        const isFavorite = this.favorites.has(trackId);
-        button.innerHTML = `<ion-icon name="${isFavorite ? 'heart' : 'heart-outline'}"></ion-icon>`;
-        button.classList.toggle('active', isFavorite);
-        button.title = isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
     }
 
     toggleFavorite(track) {
@@ -269,10 +271,21 @@ class MusicApp {
         this.saveFavorites();
     }
 
+    loadFavorites() {
+        const savedFavorites = localStorage.getItem('favorites');
+        if (savedFavorites) {
+            this.favorites = new Set(JSON.parse(savedFavorites));
+        }
+    }
+
+    saveFavorites() {
+        localStorage.setItem('favorites', JSON.stringify([...this.favorites]));
+    }
+
     async shareTrack(track) {
         const shareData = {
             title: track.metadata.title,
-            text: `Ouça ${track.metadata.title} por ${track.metadata.artist} no MusicPWA`,
+            text: `Ouça ${track.metadata.title} por ${track.metadata.artist} no SanMusic`,
             url: track.type === 'youtube' ? `https://youtu.be/${track.id}` : window.location.href
         };
 
@@ -291,29 +304,19 @@ class MusicApp {
 
     showToast(message) {
         const toast = document.createElement('div');
-        toast.className = 'toast fade-in';
+        toast.className = 'toast';
         toast.textContent = message;
         document.body.appendChild(toast);
 
+        setTimeout(() => toast.classList.add('show'), 10);
         setTimeout(() => {
-            toast.classList.add('fade-out');
+            toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
 
     initializePlayer() {
         this.player = new MusicPlayer();
-    }
-
-    loadFavorites() {
-        const savedFavorites = localStorage.getItem('favorites');
-        if (savedFavorites) {
-            this.favorites = new Set(JSON.parse(savedFavorites));
-        }
-    }
-
-    saveFavorites() {
-        localStorage.setItem('favorites', JSON.stringify([...this.favorites]));
     }
 
     async setupServiceWorker() {
