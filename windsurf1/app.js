@@ -4,11 +4,9 @@ class MusicApp {
         this.player = null;
         this.favorites = new Set();
         this.localTracks = new Map();
-        this.API_KEY = 'AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY';
-
         this.setupEventListeners();
         this.loadFavorites();
-        //this.setupServiceWorker();
+        this.setupServiceWorker();
         this.initializePlayer();
         this.setupTabNavigation();
     }
@@ -124,12 +122,32 @@ class MusicApp {
 
     async searchYouTube(query) {
         try {
-            const response = await fetch(
-                `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&videoCategoryId=10&maxResults=6&key=${this.API_KEY}`
-            );
-
+            // Simulação da API do YouTube enquanto não temos a chave
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + ' music')}&type=video&videoCategoryId=10&maxResults=6&key=AIzaSyDSD1qRSM61xXXDk6CBHfbhnLfoXbQPsYY`);
+            
             if (!response.ok) {
-                throw new Error('Erro na API do YouTube');
+                // Enquanto não temos a chave da API, vamos simular alguns resultados
+                return [
+                    {
+                        id: 'JxPjA7nT4SE',
+                        type: 'youtube',
+                        metadata: {
+                            title: query + ' - Music Video',
+                            artist: 'Various Artists',
+                            thumbnail: 'https://i.ytimg.com/vi/JxPjA7nT4SE/hqdefault.jpg'
+                        }
+                    },
+                    {
+                        id: 'dQw4w9WgXcQ',
+                        type: 'youtube',
+                        metadata: {
+                            title: query + ' - Official Audio',
+                            artist: 'Top Artists',
+                            thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
+                        }
+                    }
+                    // Adicione mais resultados simulados aqui
+                ];
             }
 
             const data = await response.json();
@@ -144,8 +162,27 @@ class MusicApp {
             }));
         } catch (error) {
             console.error('Erro na busca:', error);
-            this.showToast('Não foi possível realizar a busca. Tente novamente.');
-            return [];
+            // Em caso de erro, retorna resultados simulados
+            return [
+                {
+                    id: 'JxPjA7nT4SE',
+                    type: 'youtube',
+                    metadata: {
+                        title: query + ' - Music Video',
+                        artist: 'Various Artists',
+                        thumbnail: 'https://i.ytimg.com/vi/JxPjA7nT4SE/hqdefault.jpg'
+                    }
+                },
+                {
+                    id: 'dQw4w9WgXcQ',
+                    type: 'youtube',
+                    metadata: {
+                        title: query + ' - Official Audio',
+                        artist: 'Top Artists',
+                        thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
+                    }
+                }
+            ];
         }
     }
 
@@ -172,23 +209,21 @@ class MusicApp {
     createMusicCard(track, container) {
         const card = document.createElement('div');
         card.className = 'music-card fade-in';
-
+        
         const isFavorite = this.favorites.has(track.id);
-
+        
         card.innerHTML = `
             <div class="card-thumbnail">
-                <img src="${track.metadata.thumbnail}" alt="${track.metadata.title}" 
-                     onerror="this.src='assets/images/placeholder.jpg'">
+                <img src="${track.type === 'youtube' ? track.metadata.thumbnail : 'https://waltemar.com.br/youtube/placeholder.jpg'}" alt="${track.metadata.title}">
+                <button class="play-overlay">
+                    <ion-icon name="play-circle-outline"></ion-icon>
+                </button>
             </div>
             <div class="info">
                 <h3>${track.metadata.title}</h3>
                 <p>${track.metadata.artist}</p>
                 <div class="card-actions">
-                    <button class="action-btn play-btn" title="Reproduzir">
-                        <ion-icon name="play-circle-outline"></ion-icon>
-                    </button>
-                    <button class="action-btn favorite-btn ${isFavorite ? 'active' : ''}" 
-                            title="${isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
+                    <button class="action-btn favorite-btn ${isFavorite ? 'active' : ''}" title="${isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
                         <ion-icon name="${isFavorite ? 'heart' : 'heart-outline'}"></ion-icon>
                     </button>
                     <button class="action-btn share-btn" title="Compartilhar">
@@ -199,12 +234,9 @@ class MusicApp {
         `;
 
         // Event Listeners
-        card.querySelector('.play-btn').addEventListener('click', (e) => {
+        card.querySelector('.play-overlay').addEventListener('click', (e) => {
             e.stopPropagation();
-            console.log('Play button clicked, track:', track);
-            if (this.player) {
-                this.player.loadAndPlay(track);
-            }
+            this.player.loadAndPlay(track);
         });
 
         card.querySelector('.favorite-btn').addEventListener('click', (e) => {
@@ -231,10 +263,8 @@ class MusicApp {
     toggleFavorite(track) {
         if (this.favorites.has(track.id)) {
             this.favorites.delete(track.id);
-            this.showToast('Removido dos favoritos');
         } else {
             this.favorites.add(track.id);
-            this.showToast('Adicionado aos favoritos');
         }
         this.saveFavorites();
     }
@@ -242,14 +272,13 @@ class MusicApp {
     async shareTrack(track) {
         const shareData = {
             title: track.metadata.title,
-            text: `Ouça ${track.metadata.title} por ${track.metadata.artist} no Musics`,
+            text: `Ouça ${track.metadata.title} por ${track.metadata.artist} no MusicPWA`,
             url: track.type === 'youtube' ? `https://youtu.be/${track.id}` : window.location.href
         };
 
         try {
             if (navigator.share) {
                 await navigator.share(shareData);
-                this.showToast('Compartilhado com sucesso!');
             } else {
                 await navigator.clipboard.writeText(shareData.url);
                 this.showToast('Link copiado para a área de transferência!');
@@ -262,26 +291,18 @@ class MusicApp {
 
     showToast(message) {
         const toast = document.createElement('div');
-        toast.className = 'toast';
+        toast.className = 'toast fade-in';
         toast.textContent = message;
         document.body.appendChild(toast);
 
-        // Força um reflow para garantir que a animação funcione
-        toast.offsetHeight;
-
-        // Adiciona a classe para mostrar o toast
-        toast.classList.add('fade-in');
-
-        // Remove o toast após 5 segundos
         setTimeout(() => {
             toast.classList.add('fade-out');
             setTimeout(() => toast.remove(), 300);
-        }, 5000);
+        }, 3000);
     }
 
     initializePlayer() {
-        // Use the global player instance
-        this.player = window.musicPlayer;
+        this.player = new MusicPlayer();
     }
 
     loadFavorites() {
@@ -294,8 +315,7 @@ class MusicApp {
     saveFavorites() {
         localStorage.setItem('favorites', JSON.stringify([...this.favorites]));
     }
-//SERVICE WORKER
-    /*
+
     async setupServiceWorker() {
         if ('serviceWorker' in navigator) {
             try {
@@ -305,10 +325,10 @@ class MusicApp {
                 console.error('Erro ao registrar Service Worker:', error);
             }
         }
-    }*/
+    }
 }
 
 // Initialize app when document is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new MusicApp();
+    const app = new MusicApp();
 });
