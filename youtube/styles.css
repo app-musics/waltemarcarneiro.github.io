@@ -364,7 +364,11 @@
   .menu-header h2 {
     color: white;
     margin: 0;
+    font-weight: 600;
   }
+.playlists h2{
+    font-weight: 600;
+}
   
   .close-menu, .close-search {
     background: none;
