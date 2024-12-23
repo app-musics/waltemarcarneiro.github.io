@@ -460,6 +460,7 @@ align-items: center;
 border: none;
 white-space: nowrap;
 float: right;
+cursor: pointer;
 }
 .aviso span{
 font-weight: 600;
