@@ -1,472 +1,535 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
-@font-face {
-font-family: 'Segoe UI Variable Display';
-src:
-local('Segoe UI Variable Display'),
-url('/fonts/Segoe-UI-Variable-Static-Display.ttf') format('truetype-variations');
-font-weight: 300;
-font-style: normal;
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap'); @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap'); @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap'); @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap'); @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap'); @font-face {
+    font-family: 'Segoe UI Variable Display';
+    src: local('Segoe UI Variable Display'), url('https://waltemar.com.br/fonts/Segoe-UI-Variable-Static-Display.ttf') format('truetype-variations');
+    font-weight: 400;
+    font-style: normal;
 }
-*{
-margin: 0;
-padding: 0;
+
+* {
+    margin: 0;
+    padding: 0;
 }
+
 body, html {
-font-family: 'Roboto', sans-serif;
-background: #726232;
-background: linear-gradient(90deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('image/bg.jpg') no-repeat center center fixed;
-background-size: cover;
-color: #fff;
-font-size: 16px;
-user-select: none;
--webkit-tap-highlight-color: transparent;
-margin: 0;
+    font-family: 'Segoe UI Variable Display', sans-serif;
+    /*font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"!important;*/
+    background: #726232;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/image/bg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    font-size: 16px;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    margin: 0;
 }
+
 .header {
-padding: 10px 0px;
-display: flex;
-justify-content: space-between;
-align-items: center;
+    padding: 10px 0px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
-.header ion-icon{
-color: #fff;
-font-size: 24px;
-padding-left: 20px;
-cursor: pointer;
+
+.header ion-icon {
+    color: #fff;
+    font-size: 24px;
+    padding-left: 20px;
+    cursor: pointer;
 }
-.icon-top-right{
-display: flex;
-align-items: center;
+
+.icon-top-right {
+    display: flex;
+    align-items: center;
 }
-.icon-top-right button{
-background: #2b3fff;
-color: #fff;
-font-weight: 500;
-padding: 7px 20px;
-border-radius: 20px;
-border: none;
-cursor: pointer;
+
+.icon-top-right button {
+    background: #2b3fff;
+    color: #fff;
+    font-weight: 500;
+    padding: 7px 20px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
 }
-.date{
-font-weight: 300;
-font-size: 14px;
+
+.date {
+    font-weight: 300;
+    font-size: 14px;
 }
+
 #user {
-padding: 10px;
-background: rgba(0, 0, 0, 0.4);
-display: flex;
-align-items: center;
-border-radius: 15px;
-color: white;
-justify-content: space-between;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    border-radius: 15px;
+    color: white;
+    justify-content: space-between;
 }
-.user-info{
-text-align: left;
-cursor: pointer;
-font-family: 'Montserrat', sans-serif;
-font-size: 0.7rem;
+
+.user-info {
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.8rem;
 }
-.user-info h3{
-font-size: 1.1rem;
-font-weight: 500;
-font-family: 'Montserrat', sans-serif;    
+
+.user-info h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
 }
+
 .user-image {
-width: 70px;
-height: 70px;
-margin-right: 10px;
-border-radius: 10px;
+    width: 70px;
+    height: 70px;
+    margin-right: 10px;
+    border-radius: 10px;
 }
+
 .digital-image {
-width: 40px;
-height: 40px;
-margin-left: auto;
+    width: 40px;
+    height: 40px;
+    margin-left: auto;
 }
+
 .container {
-max-width: 480px; /* Largura máxima de 480 pixels para tela do PC */
-margin: 0 auto; /* Centraliza a div na tela */
-padding: 15px;
-z-index: 4;
+    max-width: 480px;
+    /* Largura máxima de 480 pixels para tela do PC */
+    margin: 0 auto;
+    /* Centraliza a div na tela */
+    padding: 15px;
+    z-index: 4;
 }
+
 /*START ABOUT*/
 .about {
-top:115%;
-height: 70%;
-position: absolute;
-left: 0;
-right: 0;
-/*background: rgba(0, 0, 0, 0.3);*/
-transition: top 0.5s ease-in-out;
-line-height: 1.4;
-max-width: 480px; /* Largura máxima de 480 pixels para tela do PC */
-margin: 0 auto; /* Centraliza a div na tela */
-padding: 10px;
+    top: 115%;
+    height: 70%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    /*background: rgba(0, 0, 0, 0.3);*/
+    transition: top 0.5s ease-in-out;
+    line-height: 1.4;
+    max-width: 480px;
+    /* Largura máxima de 480 pixels para tela do PC */
+    margin: 0 auto;
+    /* Centraliza a div na tela */
+    padding: 10px;
 }
-.about p{
-text-align: justify;
+
+.about p {
+    text-align: justify;
 }
+
 .logo {
-width: 40px;
-height: 40px;
+    width: 40px;
+    height: 40px;
 }
+
 .content {
-text-align: left;
-user-select: none;
-margin-top: 20%;
+    text-align: left;
+    user-select: none;
+    margin-top: 20%;
 }
+
 .center-text {
-text-align: center;
-user-select: none;
+    text-align: center;
+    user-select: none;
 }
-.center-text h1{
-font-size: 2.8rem;
-font-family: 'Segoe UI Variable Display', sans-serif;
-font-weight: 300;
-text-shadow: 1px 1px #3d1319;
+
+.center-text h1 {
+    font-size: 2.8rem;
+    font-weight: 300;
+    text-shadow: 1px 1px #3d1319;
+    color: white;
+    text-align: left;
+    margin-bottom: 30px;
 }
-h1 {
-color: white;
-text-align: left;
-margin-bottom: 30px;
-}
+
 h2 {
-font-size: 2rem;
-font-weight: 500;
+    font-size: 2rem;
+    font-weight: 500;
 }
+
 .animated-link {
-margin-bottom: 20px;
-padding-bottom: 10px;
-display: inline-block;
-position: relative;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    display: inline-block;
+    position: relative;
 }
+
 .animated-link::after {
-content: "";
-position: fixed;
-left: 0;
-bottom: -2px;
-width: 100%;
-height: 2px;
-animation: 2s infinite underline-animation;
-transform-origin: center;
+    content: "";
+    position: fixed;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    animation: 2s infinite underline-animation;
+    transform-origin: center;
 }
-#divBack{
-display: flex;
-align-items: center;
-justify-content: center;
-margin-bottom: 50px;
-padding: 0px;
+
+#divBack {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 50px;
+    padding: 0px;
 }
+
 .footer {
-text-align: center;
-left: 0;
-right: 0;
-position: fixed;    
-bottom: 20px;
-animation: bounce 2s infinite; /* Adiciona animação de subir e descer */
+    text-align: center;
+    left: 0;
+    right: 0;
+    position: fixed;
+    bottom: 20px;
+    animation: bounce 2s infinite;
+    /* Adiciona animação de subir e descer */
 }
+
 @keyframes bounce {
-0%, 20%, 50%, 80%, 100% {
-transform: translateY(0);
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    60% {
+        transform: translateY(-5px);
+    }
 }
-40% {
-transform: translateY(-10px);
+
+.contato {
+    display: flex;
+    padding: 10px;
+    align-items: center;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    background: white;
+    margin-right: 40px;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+    user-select: none;
 }
-60% {
-transform: translateY(-5px);
+
+.video {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    background: white;
+    margin-right: 40px;
 }
+
+.video iframe {
+    border-radius: 5px;
 }
-.contato{
-display: flex;
-padding: 10px;
-align-items: center;
-margin-top: 8px;
-margin-bottom: 10px;
-border-bottom: 1px solid #ddd;
-background: white;
-margin-right: 40px;
--webkit-tap-highlight-color: transparent;
-tap-highlight-color: transparent;
-user-select: none;
-}
-.video{
-display: flex;
-align-items: center;
-margin-top: 8px;
-margin-bottom: 10px;
-border-bottom: 1px solid #ddd;
-background: white;
-margin-right: 40px;
-}
-.video iframe{
-border-radius: 5px;
-}
+
 /* Adiciona a classe 'show-about' quando a página é rolada para cima */
 body.show-about .about {
-top: 0;
+    top: 0;
 }
+
 /*END ABOUT*/
-.icon-about{
-width: 40px;
-height: 40px;
-align-items: center;
-display: flex;
-color: #67BB00;
-font-size: 26px;
+.icon-about {
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    display: flex;
+    color: #67BB00;
+    font-size: 26px;
 }
-p{
-line-height: 1.5;
+
+p {
+    line-height: 1.5;
 }
-a{
-color: #fff;
-text-decoration: none;
-cursor: pointer;
+
+a {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
 }
-.icon-acesso{
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-top: 10px;
+
+.icon-acesso {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
 }
-.icon-acesso span{
-cursor: pointer;
+
+.icon-acesso span {
+    cursor: pointer;
 }
-.icon-acesso ion-icon, img{
-font-size: 32px;
-margin-right: 10px;
-cursor: pointer;
+
+.icon-acesso ion-icon, img {
+    font-size: 32px;
+    margin-right: 10px;
+    cursor: pointer;
 }
-.blocos{
-display: flex;
-justify-content: space-around;
-align-items: center;
-margin-bottom: 20px;
+
+.blocos {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px;
 }
-.bloco{
-text-align: center;
-padding: 5px;
-border-radius: 15px;
-height: 70px;
-width: 70px;
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-background: rgba(0, 0, 0, 0.5);
+
+.bloco {
+    text-align: center;
+    padding: 5px;
+    border-radius: 15px;
+    height: 70px;
+    width: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
 }
-.bloco p{
-font-family: 'Roboto', sans-serif;
-font-size: 0.72rem;
-font-weight: 400;
-text-align: center;
-color: #EEE;
+
+.bloco p {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-align: center;
+    color: #EEE;
 }
-.bloco ion-icon{
-font-size: 32px;
-color: #fff;
+
+.bloco ion-icon {
+    font-size: 32px;
+    color: #fff;
 }
-.bloco img{
-width: 60px;
-border-radius: 10px;
-margin: 5px 0px 0px 0px;
+
+.bloco img {
+    width: 60px;
+    border-radius: 10px;
+    margin: 5px 0px 0px 0px;
 }
+
 /* START CARROSEL */
 .carrossel {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-display: none; /* Inicialmente oculto */
-overflow: hidden;
-z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    /* Inicialmente oculto */
+    overflow: hidden;
+    z-index: 1000;
 }
+
 .carrossel.active {
-display: flex; /* Apenas mostrar quando ativo */
+    display: flex;
+    /* Apenas mostrar quando ativo */
 }
+
 .carrossel-slide {
-flex: 1;
-display: none;
-align-items: center;
-justify-content: center;
-background-size: cover;
-background-position: center;
-text-align: center;
-color: #fff;
-position: relative;
+    flex: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    color: #fff;
+    position: relative;
 }
+
 .carrossel-slide.active {
-display: flex;
+    display: flex;
 }
+
 .carrossel-content {
-background: rgba(0, 0, 0, 0.5);
-padding: 20px;
-/*NEW CONFIG*/
-line-height: 1.5;
-width: 100%;
-height: 100%;
-display: flex;
-justify-content: center;
-align-items: center;
-flex-direction: column;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    /*NEW CONFIG*/
+    line-height: 1.5;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
-.carrossel-content h2{
-font-size: 1.1rem;
+
+.carrossel-content h2 {
+    font-size: 1.1rem;
 }
-.carrossel-content p{
-font-size: 0.8rem;
+
+.carrossel-content p {
+    font-size: 0.8rem;
 }
+
 .prev-slide, .next-slide, .finish-intro {
-position: absolute;
-bottom: 20px;
-font-size: 2rem;
-cursor: pointer;
-background: rgba(0, 0, 0, 0.6);
-border-radius: 100%;
-padding: 10px;
+    position: absolute;
+    bottom: 20px;
+    font-size: 2rem;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 100%;
+    padding: 10px;
 }
+
 .prev-slide {
-left: 20px;
+    left: 20px;
 }
+
 .next-slide, .finish-intro {
-right: 20px;
+    right: 20px;
 }
+
 .carrossel-slide video {
-width: 100%;
-height: auto;
-border-radius: 10px;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
 }
+
 .carrossel-slide img {
-width: 100%;
-height: auto;
-border-radius: 10px;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
 }
+
 /*END CARROSSEL*/
 /* /////////////////////// BANNER APP INSTALL ///////////////////////*/
 .app {
-background: #fff;
-background-size: cover;    
-max-width: 480px;
-padding: 10px;
-position: fixed;
-bottom: -100%;
-left: 0;
-right: 0;
-border-radius: 20px 20px 0 0;
-transition: bottom 3s ease-in-out;
-z-index: 2000;
+    background: #fff;
+    background-size: cover;
+    max-width: 480px;
+    padding: 10px;
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    right: 0;
+    border-radius: 20px 20px 0 0;
+    transition: bottom 3s ease-in-out;
+    z-index: 2000;
 }
+
 .app.show {
-bottom: 0;
+    bottom: 0;
 }
+
 .logo-app {
-float: left;
-margin-right: 10px;
-width: 55px;
-height: 55px;
-background: url('https://waltemar.com.br/icons/icon192.png') no-repeat center center;
-background-size: cover;
-border-radius: 10px;
+    float: left;
+    margin-right: 10px;
+    width: 55px;
+    height: 55px;
+    background: url('https://waltemar.com.br/icons/icon192.png') no-repeat center center;
+    background-size: cover;
+    border-radius: 10px;
 }
+
 .app .content {
-overflow: hidden;
+    overflow: hidden;
 }
+
 .app-title {
-font-family: 'Montserrat', sans-serif;
-font-weight: 700;
-color: #222;
+    font-weight: 700;
+    color: #222;
 }
+
 .app-subtitle {
-font-weight: 500;
-font-size: 0.85rem;
-margin: 0;
-color: #222;
+    font-weight: 500;
+    font-size: 0.85rem;
+    margin: 0;
+    color: #222;
 }
+
 .add-info {
-font-size: 0.65rem;
-font-weight: 500;
-color: #222;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #222;
 }
+
 .message {
-clear: both;
-font-weight: 500;
-color: #222;
-font-size: 1.1rem;
-display: flex;
-align-items: center;
-padding: 30px 0px;
+    clear: both;
+    font-weight: 500;
+    color: #222;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    padding: 30px 0px;
 }
+
 .app .install-btn-app {
-font-size: 1.1rem;
-font-weight: 600;
-font-family: 'Montserrat', sans-serif;
-width: 100%;
-background: #f76700;
-color: #fff;
-border-radius: 7px;
-border: none;
-padding: 10px;
-cursor: pointer;
-text-align: center;
-display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 100%;
+    background: #f76700;
+    color: #fff;
+    border-radius: 7px;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    text-align: center;
+    display: block;
 }
+
 .header-app {
-top: 7px;
-display: flex;
-flex-direction: row;
-justify-content: space-between;
-left: 0px;
-right: 10px;
+    top: 7px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    left: 0px;
+    right: 10px;
 }
-.header-app p{
-line-height: 1.3 !important;
+
+.header-app p {
+    line-height: 1.3 !important;
 }
+
 .header-app ion-icon {
-font-size: 32px;
-color: #999;
-cursor: pointer;
+    font-size: 32px;
+    color: #999;
+    cursor: pointer;
 }
 
 /*AVISO BANNER*/
-
+/*aviso*/
 .aviso {
-bottom: 10%;
-background: #fff;
-padding: 10px;
-display: flex;
-border-radius: 5px;
-align-items: center;
-color: #333;
-position: absolute;
-left: 10px;
-right: 10px;
-max-width: 480px;
-margin: auto;
+    bottom: 10%;
+    background: #fff;
+    padding: 10px;
+    display: flex;
+    border-radius: 5px;
+    align-items: center;
+    color: #333;
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    max-width: 480px;
+    margin: auto;
 }
-.logo-aviso{
-background: #ccc;
-margin-right: 10px;
-border-radius: 10px;
+
+.logo-aviso {
+    background: #ccc;
+    margin-right: 10px;
+    border-radius: 10px;
 }
-.btn-aviso{
-background:#007bff;
-color: white;
-padding: 3px 15px;
-border-radius: 5px;
-align-items: center;
-border: none;
-white-space: nowrap;
-float: right;
-cursor: pointer;
+
+.btn-aviso {
+    background: #007bff;
+    color: white;
+    padding: 3px 15px;
+    border-radius: 5px;
+    align-items: center;
+    border: none;
+    white-space: nowrap;
+    float: right;
 }
-.aviso span{
-font-weight: 600;
+
+.aviso span {
+    font-weight: bold;
 }
-.aviso p{
-color: #555;
-line-height: 1.2;
-font-size: 1rem;
+
+.aviso p {
+    color: #333;
+    line-height: 1.2;
+    font-size: 1rem;
 }
