@@ -91,6 +91,10 @@ transition: all 0.3s ease;
 background: var(--accent-color);
 transform: translateX(5px);
 }
+.playlist-item i{
+margin-right: 4px;
+opacity: 0.5;
+}
 /* Lista de Músicas */
 .songs-container {
 display: grid;
