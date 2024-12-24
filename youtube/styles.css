@@ -153,6 +153,11 @@
   .song-artist {
     font-size: 0.875em;
     color: rgba(255, 255, 255, 0.7);
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   /* Player Controls */
