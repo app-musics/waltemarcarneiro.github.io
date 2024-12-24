@@ -147,6 +147,7 @@
     display: -webkit-box;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 0.95rem;
   }
   
   .song-artist {
